@@ -56,18 +56,30 @@ The infrastructure consists of several key components:
 ```
 .
 ├── modules/
-│   └── instances/           # Terraform modules for instance creation
-│       ├── salt-master.tf   # Salt master configuration
-│       └── templates/       # Cloud-init templates
+│   ├── instances/           # Instance creation and configuration
+│   ├── networking/         # Network and security group configurations
+│   └── storage/           # Storage and backup configurations
 ├── srv/
-│   └── salt/               # SaltStack configuration
-│       ├── pillar/         # Encrypted pillar data
-│       ├── salt-master/    # Salt master states
-│       ├── vault/          # Vault configuration
-│       └── solana/         # Solana validator states
-└── scripts/                # Utility scripts
-    ├── sync_salt.sh       # Salt configuration sync
-    └── validate_salt_master.sh  # Validation script
+│   └── salt/              # SaltStack configuration
+│       ├── common/        # Common Salt states and files
+│       ├── pillar/        # Encrypted pillar data
+│       ├── reactor/       # Salt reactor configurations
+│       ├── salt-master/   # Salt master states
+│       ├── solana/        # Solana validator states
+│       ├── vault/         # Vault configuration
+│       ├── common.sls     # Common system configuration
+│       ├── salt_init.sls  # Salt initialization
+│       ├── top.sls        # Salt top file
+│       ├── vault_init.sls # Vault initialization
+│       └── vault_test.sls # Vault testing
+├── scripts/               # Utility scripts
+│   └── setup.sh          # Setup and initialization script
+├── validator-keys/       # Solana validator keypairs
+├── main.tf              # Main Terraform configuration
+├── variables.tf         # Terraform variables
+├── outputs.tf           # Terraform outputs
+├── providers.tf         # Provider configurations
+└── terraform.tfvars.example  # Example variables file
 ```
 
 ## Prerequisites
