@@ -4,21 +4,22 @@ ssh_public_key = "ssh-rsa AAAA..." # Replace with your SSH public key
 # AWS Route53 configuration
 aws_root_zone = "example.com"      # Your root domain
 aws_zone_id = "Z1234567890ABC"     # Your Route53 zone ID
+gcp_project_id = "my-project-id"   # Your GCP project ID
+
 
 # Optional Variables
 # Optional: GCP configuration
-gcp_project_id = "my-project-id"   # Your GCP project ID
-gcp_region = "us-central1"         # Your preferred GCP region
+#gcp_region = "us-central1"         # Your preferred GCP region
 
 # Optional: Instance configurations
-instance_type = "c5.2xlarge"       # Default instance type for validators
-salt_master_instance_type = "t3.medium"  # Instance type for Salt master
-test_minion_instance_type = "t3.micro"   # Instance type for test minions
+#instance_type = "c5.2xlarge"       # Default instance type for validators
+#salt_master_instance_type = "t3.medium"  # Instance type for Salt master
+#test_minion_instance_type = "t3.micro"   # Instance type for test minions
 
 # Optional: Network configuration
-vpc_cidr = "10.0.0.0/16"          # VPC CIDR block
-subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]  # Subnet CIDR blocks
+v#pc_cidr = "10.0.0.0/16"          # VPC CIDR block
+#subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]  # Subnet CIDR blocks
 
 # Optional: Tags
-environment = "production"         # Environment name (e.g., production, staging)
-project = "solana-validator"       # Project name
+#environment = "production"         # Environment name (e.g., production, staging)
+#project = "solana-validator"       # Project name

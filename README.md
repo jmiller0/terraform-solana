@@ -91,38 +91,25 @@ The infrastructure consists of several key components:
    - AWS: Configure using `aws configure`
    - GCP: Configure using `gcloud auth application-default login`
 
-3. Set up GPG encryption for sensitive data:
+3. Run the setup script:
    ```bash
-   # Generate a new GPG key if you don't have one
-   gpg --gen-key
-   
-   # Export your public key
-   gpg --export --armor your-email@example.com > gpg.pub
+   ./scripts/setup.sh init
+   ```
+   This will:
+   - Create terraform.tfvars from the example file
+   - Add your SSH public key (from ~/.ssh/id_rsa.pub or prompt for input)
+   - Add your GCP project ID
+   - Add your root zone
+   - Verify cloud provider credentials
+   - Enable required GCP APIs
+   - Initialize Terraform
+
+4. Review the planned changes:
+   ```bash
+   ./scripts/setup.sh plan
    ```
 
-4. Create your terraform.tfvars file:
-   ```bash
-   cp terraform.tfvars.example terraform.tfvars
-   ```
-   Edit terraform.tfvars with your specific values.
-
-5. Place your Solana validator keypairs in the `validator-keys` directory:
-   - authorized-withdrawer-keypair.json
-   - stake-keypair.json
-   - validator-keypair.json
-   - vote-account-keypair.json
-
-6. Initialize Terraform:
-   ```bash
-   terraform init
-   ```
-
-7. Review the planned changes:
-   ```bash
-   terraform plan
-   ```
-
-8. Apply the configuration:
+5. Apply the configuration:
    ```bash
    terraform apply
    ```
@@ -184,15 +171,4 @@ The infrastructure consists of several key components:
    - Verify TLS certificates
    - Check Vault status and logs
    - Verify AppRole configuration
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Submit a pull request
-
-## License
-
-[Your License Here]
 
