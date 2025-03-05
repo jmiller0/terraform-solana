@@ -1,1 +1,118 @@
- 
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  terraform-checks:
+    name: Terraform Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.5.7"
+    
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check
+      continue-on-error: true
+    
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      env:
+        TF_INPUT: false
+    
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate
+      env:
+        TF_INPUT: false
+    
+    - name: Terraform Plan
+      id: plan
+      run: terraform plan -no-color
+      env:
+        TF_INPUT: false
+    
+    - name: Check for sensitive data
+      id: sensitive
+      run: |
+        # Check for potential secrets in terraform files
+        if grep -r "password\|secret\|key\|token" *.tf modules/*/*.tf; then
+          echo "Potential sensitive data found in Terraform files"
+          exit 1
+        fi
+
+  salt-checks:
+    name: Salt Checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./srv/salt
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Install Salt
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y salt-master
+    
+    - name: Check Salt Syntax
+      run: |
+        # Check all .sls files for syntax errors
+        for file in $(find . -name "*.sls"); do
+          echo "Checking $file..."
+          salt-call --local state.show_sls $(echo $file | sed 's/\.sls$//' | sed 's/^\.\///') test=True
+        done
+    
+    - name: Check for sensitive data
+      run: |
+        # Check for potential secrets in pillar files
+        if find ./pillar -type f -exec grep -l "password\|secret\|key\|token" {} \;; then
+          echo "Potential sensitive data found in pillar files"
+          exit 1
+        fi
+    
+    - name: Check YAML syntax
+      run: |
+        # Check all YAML files for syntax errors
+        for file in $(find . -name "*.yml" -o -name "*.yaml"); do
+          echo "Checking $file..."
+          python3 -c "import yaml; yaml.safe_load(open('$file'))"
+        done
+
+  security-checks:
+    name: Security Checks
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run tflint
+      uses: terraform-linters/setup-tflint@v1.0.0
+      with:
+        tflint_version: v0.44.0
+    
+    - name: Run tflint
+      run: tflint --init && tflint
+      env:
+        TF_INPUT: false
+    
+    - name: Run terrascan
+      uses: accurics/terrascan-action@main
+      env:
+        INPUT_IAC_TYPE: terraform
+        INPUT_IAC_VERSION: v14
+        INPUT_NON_RECURSIVE: true
+        INPUT_WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        INPUT_WEBHOOK_TOKEN: ${{ secrets.WEBHOOK_TOKEN }}
