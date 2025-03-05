@@ -1,0 +1,73 @@
+user = "solana"
+dynamic_port_range = "8900-9000"
+scratch_directory = "/mnt/solana/.firedancer/{name}"
+
+
+[gossip]
+    entrypoints = [
+      "entrypoint.testnet.solana.com:8001",
+      "entrypoint2.testnet.solana.com:8001",
+      "entrypoint3.testnet.solana.com:8001"
+    ]
+    port_check = true
+    host = "{{ grains['host'] }}.{{ grains['aws_root_zone'] }}"
+
+[log]
+    path = "/home/solana/fdctl/frankendancer.log"
+
+[consensus]
+    identity_path = "/mnt/solana/validator-keypair.json"
+    vote_account_path = "/mnt/solana/vote-account-keypair.json"
+
+    known_validators = [
+    "eoKpUABi59aT4rR9HGS3LcMecfut9x7zJyodWWP43YQ",
+    "5D1fNXzvv5NjV1ysLjirC4WY92RNsVH18vjmcszZd8on",
+    "7XSY3MrYnK8vq693Rju17bbPkCN3Z7KvvfvJx4kdrsSY",
+    "Ft5fbkqNa76vnsjYNwjDZUXoTWpP7VYm3mtsaQckQADN",
+    "9QxCLckBiJc783jnMvXZubK4wH86Eqqvashtrwvcsgkv"
+    ]
+    genesis_fetch = true
+    poh_speed_test = true
+    snapshot_fetch = true
+
+    expected_shred_version = 64475
+    expected_genesis_hash = "4uhcVJyU9pJkvQyS88uRDiswHXSCkY3zQawwpjk2NsNY"
+
+[rpc]
+    port = 8899
+    full_api = true
+    private = true
+
+[reporting]
+    solana_metrics_config = "host=https://metrics.solana.com:8086,db=tds,u=testnet_write,p=c4fa841aa918bf8274e3e2a44d77568d9861b3ea"
+
+[tiles.gui]
+        gui_listen_address = "0.0.0.0"
+        gui_listen_port = 8888
+
+#[tiles.net]
+#	xdp_mode = "sdp"
+
+[snapshots]
+	    minimum_snapshot_download_speed = 31457280
+	    enabled = true
+	    incremental_snapshots = true
+	    maximum_full_snapshots_to_retain = 1
+	    maximum_incremental_snapshots_to_retain = 2
+
+[layout]
+	affinity = "auto"
+	agave_affinity = "auto"
+#	shred_tile_count = 4
+
+
+[ledger]
+	limit_size = 100_000_000 
+
+[tiles.bundle]
+    enabled = true
+    url = "https://testnet.block-engine.jito.wtf"
+    tip_distribution_program_addr = "F2Zu7QZiTYUhPd7u9ukRVwxh7B71oA3NMJcHuCHc29P2"
+    tip_payment_program_addr = "GJHtFqM9agxPmkeKjHny6qiRKrXZALvvFGiKf11QE7hy"
+    tip_distribution_authority = "GZctHpWXmsZC1YHACTGGcHhYxjdRqQvTpYkb9LMvxDib"
+    commission_bps = 10000    
