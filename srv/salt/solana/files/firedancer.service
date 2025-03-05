@@ -1,0 +1,25 @@
+[Unit]
+Description=Firedancer Validator Service
+After=network.target
+
+[Service]
+Type=simple
+User=solana
+Group=solana
+Environment=HOME=/home/solana
+WorkingDirectory=/home/solana/fdctl
+Restart=on-failure
+LimitNPROC=100000
+LimitCORE=infinity
+LimitNOFILE=1000000
+LogRateLimitIntervalSec=0
+
+# Rotate log file before starting
+ExecStartPre=/bin/bash -c 'if [ -f /home/solana/fdctl/frankendancer.log ]; then mv /home/solana/fdctl/frankendancer.log "/home/solana/fdctl/frankendancer-$(date +%%Y-%%m-%%d-%%H-%%M).log"; fi'
+ExecStartPre=sudo /usr/local/bin/fdctl configure init all --config /home/solana/fdctl/testnet.toml
+ExecStart=sudo /usr/local/bin/fdctl run --config /home/solana/fdctl/testnet.toml
+ExecStop=sudo /usr/local/bin/fdctl stop
+TimeoutSec=infinity
+
+[Install]
+WantedBy=multi-user.target 

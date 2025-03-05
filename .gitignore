@@ -1,0 +1,52 @@
+# Terraform files
+*.tfstate
+*.tfstate.*
+.terraform/
+terraform.tfvars
+.terraform.lock.hcl
+terraform.tfstate
+terraform.tfstate.backup
+.terraform.tfstate.lock.info
+
+
+# Backup folders
+backup/
+*backup*/
+salt_backups/
+*_backups/
+
+# Wireguard configuration
+wireguard/
+
+# Salt pillar files
+*.gpg
+*.pem
+*.env
+*.log
+*.bak
+*.tmp
+
+# Additional sensitive files
+*.key
+*.crt
+*.pem
+*.gpg
+*.env
+*.log
+*.bak
+*.tmp
+
+# Other common files to ignore
+.DS_Store
+*.swp
+*.swo
+*~
+.idea/
+.vscode/
+__pycache__/
+*.py[cod]
+*$py.class 
+.cursorrules
+.cursorignore
+validator-keys/
+scripts/
