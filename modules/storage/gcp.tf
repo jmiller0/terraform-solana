@@ -1,26 +1,6 @@
-# # GCS Bucket
-# resource "google_storage_bucket" "validator" {
-#   name          = "gcp-sol-val"
-#   location      = var.gcp_region
-#   storage_class = "STANDARD"
-
-#   uniform_bucket_level_access = true
-# }
-
-# # IAM policy
-# resource "google_storage_bucket_iam_binding" "validator" {
-#   bucket = google_storage_bucket.validator.name
-#   role   = "roles/storage.objectViewer"
-  
-#   members = [
-#     "serviceAccount:${var.validator_service_account}",
-#     "allUsers"  # Will be restricted by VPC Service Controls
-#   ]
-# } 
-
-# GCS Bucket
+# GCP Bucket
 resource "google_storage_bucket" "validator" {
-  name          = "gcp-sol-val"
+  name          = "solana-validator"
   location      = var.gcp_region
   storage_class = "STANDARD"
 
@@ -37,7 +17,7 @@ resource "google_storage_bucket" "validator" {
     }
     action {
       type = "SetStorageClass"
-      storage_class = "STANDARD_IA"
+      storage_class = "NEARLINE"
     }
   }
 
@@ -63,6 +43,11 @@ resource "google_storage_bucket" "validator" {
   versioning {
     enabled = true
   }
+}
+
+# Generate random suffix for bucket name
+resource "random_id" "bucket_suffix" {
+  byte_length = 4
 }
 
 # IAM policy
