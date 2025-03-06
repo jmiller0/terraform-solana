@@ -54,13 +54,20 @@ resource "aws_instance" "salt_master" {
   root_block_device {
     volume_size = 50
     volume_type = "gp3"
+    tags = {
+      Name        = "salt-master-root"
+      Environment = "Dev"
+      Service     = "Salt"
+    }
   }
 
   user_data = data.cloudinit_config.salt_master.rendered
 
   tags = {
-    Name = "salt-master"
-    Role = "salt-master"
+    Name        = "salt-master"
+    Role        = "salt-master"
+    Environment = "Dev"
+    Service     = "Salt"
   }
 
   lifecycle {
