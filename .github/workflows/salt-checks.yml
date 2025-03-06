@@ -1,0 +1,32 @@
+name: Salt Checks
+
+on:
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  salt-checks:
+    name: Salt Lint
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./srv/salt
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run salt-lint
+      uses: roaldnefs/salt-lint-action@master
+      env:
+        ACTION_STATE_FIND_PATTERN: '^.*\.(sls|jinja|j2|tmpl|tst)$'
+        ACTION_STATE_FIND_TYPE: 'regex'
+        SALT_LINT_EXTRA_PARAMS: '-v -x 205'
+        
+    - name: Check YAML syntax
+      run: |
+        # Check all YAML files for syntax errors
+        for file in $(find . -name "*.yml" -o -name "*.yaml"); do
+          echo "Checking $file..."
+          python3 -c "import yaml; yaml.safe_load(open('$file'))"
+        done
+

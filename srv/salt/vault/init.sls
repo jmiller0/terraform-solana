@@ -32,7 +32,7 @@ setup_vault_dirs:
       - /opt/vault/tls
     - user: vault
     - group: vault
-    - mode: 755
+    - mode: '0755'
     - makedirs: True
     - require:
       - pkg: install_vault
@@ -45,7 +45,7 @@ deploy_vault_cert:
         {{ pillar['vault']['tls']['cert'] | indent(8) }}
     - user: vault
     - group: vault
-    - mode: 644
+    - mode: '0644'
     - require:
       - file: setup_vault_dirs
     - show_changes: False
@@ -57,7 +57,7 @@ deploy_vault_key:
         {{ pillar['vault']['tls']['key'] | indent(8) }}
     - user: vault
     - group: vault
-    - mode: 600
+    - mode: '0600'
     - require:
       - file: setup_vault_dirs
     - show_changes: False
@@ -69,7 +69,7 @@ configure_vault:
     - source: salt://vault/config.hcl
     - user: root
     - group: vault
-    - mode: 640
+    - mode: '0640'
     - require:
       - file: setup_vault_dirs
 

@@ -1,0 +1,65 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  terraform-checks:
+    name: Terraform Fmt and Validate     
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: latest
+    
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check
+      continue-on-error: true
+    
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      env:
+        TF_INPUT: false
+    
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate
+      env:
+        TF_INPUT: false
+
+  terraform-lint-checks:
+    name: Terraform Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - uses: actions/cache@v4
+      name: Cache plugin dir
+      with:
+        path: ~/.tflint.d/plugins
+        key: ${{ runner.os }}-tflint-${{ hashFiles('.tflint.hcl') }}
+    
+    - uses: terraform-linters/setup-tflint@v4
+      name: Setup TFLint
+      with:
+        tflint_version: latest
+    
+    - name: Show version
+      run: tflint --version
+    
+    - name: Init TFLint
+      run: tflint --init
+    
+    - name: Run TFLint
+      run: tflint -f compact

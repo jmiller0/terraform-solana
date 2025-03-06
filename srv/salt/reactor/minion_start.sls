@@ -17,4 +17,4 @@ highstate_on_connect:
 # Sync modules and states to ensure we have latest
 sync_modules:
   local.saltutil.sync_all:
-    - tgt: {{ data['id'] }} 
+    - tgt: {{ data['id'] }}

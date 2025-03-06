@@ -7,7 +7,7 @@ include:
   file.managed:
     - contents: |
         solana ALL=(ALL) NOPASSWD: ALL
-    - mode: 440
+    - mode: '0440'
     - user: root
     - group: root
     - check_cmd: visudo -c -f
@@ -17,7 +17,12 @@ include:
 # Get the latest tag from the Firedancer repository
 get_latest_firedancer_tag:
   cmd.run:
-    - name: git ls-remote --tags --sort="-v:refname" https://github.com/firedancer-io/firedancer.git | grep -v '{}' | head -n1 | sed 's/.*refs\/tags\///' > /tmp/firedancer_latest_tag
+    - name: |
+        git ls-remote --tags --sort="-v:refname" \
+          https://github.com/firedancer-io/firedancer.git | \
+          grep -v '{}' | \
+          head -n1 | \
+          sed 's/.*refs\/tags\///' > /tmp/firedancer_latest_tag
     - creates: /tmp/firedancer_latest_tag
     - unless: test -f /opt/firedancer/build/native/gcc/bin/fdctl
 
@@ -44,21 +49,6 @@ set_firedancer_ownership:
     - require:
         - git: clone_firedancer
 
-# Verify Rust and Cargo are working before building
-# verify_rust_cargo:
-#   cmd.run:
-#     - name: |
-#         source $HOME/.cargo/env
-#         rustc --version
-#         cargo --version
-#     - runas: solana
-#     - shell: /bin/bash
-#     - env:
-#         - HOME: /home/solana
-#         - USER: solana
-#     - require:
-#       - cmd: install_rust
-
 # Build Firedancer - only if CPU cores > 32
 build_firedancer:
   cmd.run:
@@ -69,7 +59,7 @@ build_firedancer:
         echo "Building Firedancer version: $LATEST_TAG"
         git checkout $LATEST_TAG
         yes | ./deps.sh
-        
+
         # Only build fdctl and solana if we have enough CPU cores
         if [ $(nproc) -gt 32 ]; then
             echo "System has $(nproc) cores, building Firedancer..."
@@ -106,7 +96,7 @@ build_firedancer:
   file.directory:
     - user: solana
     - group: solana
-    - mode: 755
+    - mode: '0755'
     - makedirs: True
 
 # Deploy testnet.toml configuration
@@ -116,7 +106,7 @@ build_firedancer:
     - template: jinja
     - user: solana
     - group: solana
-    - mode: 644
+    - mode: '0644'
     - require:
       - file: /home/solana/fdctl
 
@@ -124,7 +114,7 @@ build_firedancer:
 /etc/systemd/system/firedancer.service:
   file.managed:
     - source: salt://solana/files/firedancer.service
-    - mode: 644
+    - mode: '0644'
     - user: root
     - group: root
     - onlyif: test -f /opt/firedancer/build/native/gcc/bin/fdctl
@@ -143,8 +133,8 @@ firedancer:
   file.managed:
     - contents: |
         solana ALL=(ALL) NOPASSWD: /usr/local/bin/fdctl
-    - mode: 440
+    - mode: '0440'
     - user: root
     - group: root
     - check_cmd: visudo -c -f
-    - onlyif: test -f /opt/firedancer/build/native/gcc/bin/fdctl 
+    - onlyif: test -f /opt/firedancer/build/native/gcc/bin/fdctl
