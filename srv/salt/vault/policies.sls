@@ -23,16 +23,13 @@ create_salt_minion_base_policy:
         path "auth/token/lookup-self" {
           capabilities = ["read"]
         }
-        
         path "auth/token/renew-self" {
           capabilities = ["update"]
         }
-        
         # Allow access to common secrets
         path "secret/data/common/*" {
           capabilities = ["read", "list"]
         }
-        
         path "secret/metadata/common/*" {
           capabilities = ["read", "list"]
         }
@@ -52,16 +49,13 @@ create_validator_policy:
         path "secret/metadata/solana/*" {
           capabilities = ["read", "list"]
         }
-
         path "secret/solana/*" {
           capabilities = ["read", "list"]
         }
-
         # Allow token lookup
         path "auth/token/lookup" {
           capabilities = ["read"]
         }
-
         path "auth/token/lookup-self" {
           capabilities = ["read"]
         }
@@ -81,16 +75,13 @@ create_test_minion_policy:
         path "secret/data/test/*" {
           capabilities = ["read", "list"]
         }
-        
         path "secret/metadata/test/*" {
           capabilities = ["read", "list"]
         }
-        
         # Allow access to test secrets
         path "secret/test/*" {
           capabilities = ["read", "list"]
         }
-        
         # Allow token lookup
         path "auth/token/lookup-self" {
           capabilities = ["read"]
@@ -112,4 +103,4 @@ create_test_secret:
     - env:
         - VAULT_TOKEN: {{ pillar['vault']['token'] }}
     - require:
-      - cmd: check_vault_status 
+      - cmd: check_vault_status

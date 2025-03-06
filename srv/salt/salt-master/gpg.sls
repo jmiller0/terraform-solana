@@ -4,7 +4,7 @@ gpg_config_dir:
     - name: /etc/salt/gpgkeys
     - user: root
     - group: root
-    - mode: 700
+    - mode: '0700'
     - makedirs: True
 
 # Configure GPG for Salt master
@@ -16,7 +16,7 @@ gpg_config:
         gpg_keydir: /etc/salt/gpgkeys
     - user: root
     - group: root
-    - mode: 644
+    - mode: '0644'
     - require:
       - file: gpg_config_dir
 
@@ -31,7 +31,7 @@ gpg_renderer_config:
           - gpg
     - user: root
     - group: root
-    - mode: 644
+    - mode: '0644'
     - require:
       - file: gpg_config_dir
 

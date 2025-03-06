@@ -23,7 +23,7 @@ salt_master_config_dir:
     - name: /etc/salt/master.d
     - user: root
     - group: root
-    - mode: 755
+    - mode: '0755'
     - makedirs: True
 
 # Configure basic Salt master settings
@@ -52,7 +52,7 @@ salt_master_config:
             - /srv/salt/reactor/minion_start.sls
     - user: root
     - group: root
-    - mode: 644
+    - mode: '0644'
     - require:
       - file: salt_master_config_dir
 
@@ -111,7 +111,7 @@ vault_integration_config:
     - template: jinja
     - user: root
     - group: root
-    - mode: 640
+    - mode: '0640'
     - require:
       - file: salt_master_config_dir
 
@@ -130,7 +130,7 @@ vault_peer_run_config:
             - vault.get_role_id
     - user: root
     - group: root
-    - mode: 644
+    - mode: '0644'
     - require:
       - file: salt_master_config_dir
 
@@ -148,59 +148,44 @@ vault_env_vars:
         alias reloadbash='source ~/.bashrc'
         alias allhs='salt "*" state.highstate --state-output=changes'
         alias lhs='salt-call state.highstate --state-output=changes'
-
         # List all historical jobs
         alias salt-jobs='salt-run jobs.list_jobs --out=json | jq'
-
         # List only the last 10 jobs
         alias salt-jobs-last10='salt-run jobs.list_jobs --out=json | jq "to_entries | sort_by(.key) | reverse | .[:10]"'
-
         # Show details of a specific job (requires job ID)
         alias salt-job-detail='salt-run jobs.lookup_jid'
-
         # Show all currently running jobs
         alias salt-jobs-running='salt "*" saltutil.running --out=json | jq'
-
         # Show running jobs for a specific minion (requires minion ID)
         alias salt-jobs-running-minion='salt $1 saltutil.running --out=json | jq'
-
         # Show job results for a specific job ID (requires job ID)
         alias salt-job-results='salt-run jobs.lookup_jid $1'
-
         # Show the last job for a specific minion (requires minion ID)
         alias salt-job-last='salt-run jobs.list_jobs search_target=$1 --out=json | jq "to_entries | sort_by(.key) | reverse | .[0]"'
-
         # Kill a running job (requires job ID and minion ID)
         alias salt-job-kill='salt $1 saltutil.kill_job $2'
-
         # Retry a failed job (requires job ID)
         alias salt-job-retry='salt-run state.orchestrate jobs.retry_job jid=$1'
-
         # Show failed jobs in the last 24 hours
         alias salt-jobs-failed='salt-run jobs.list_jobs --out=json | jq "to_entries | map(select(.value.Result == false))"'
-
         # Show highstate job history for a specific minion (requires minion ID)
         alias salt-jobs-highstate='salt-run jobs.list_jobs search_function=state.highstate search_target=$1 --out=json | jq'
-
         # Show job status (pending, running, completed) for a given job ID
         alias salt-job-status='salt-run jobs.list_job $1 --out=json | jq'
-
         # Show all jobs started by a specific user (requires username)
         alias salt-jobs-user='salt-run jobs.list_jobs search_user=$1 --out=json | jq'
-
         # Show the most recent job that affected a given minion
         alias salt-job-latest='salt-run jobs.list_jobs search_target=$1 --out=json | jq "to_entries | sort_by(.key) | reverse | .[0]"'
-
         # Show when the last highstate ran for a minion (requires minion ID)
-        alias salt-last-highstate='salt-run jobs.list_jobs search_function=state.highstate search_target=$1 --out=json | jq "to_entries | sort_by(.key) | reverse | .[0]"'
-
+        alias salt-last-highstate='salt-run jobs.list_jobs \
+          search_function=state.highstate \
+          search_target=$1 \
+          --out=json | \
+          jq "to_entries | sort_by(.key) | reverse | .[0]"'
         # Show jobs executed within the last hour
         alias salt-jobs-last-hour='salt-run jobs.list_jobs search_time_range=3600 --out=json | jq'
-
         # Show all jobs for a specific function (e.g., state.apply)
         alias salt-jobs-function='salt-run jobs.list_jobs search_function=$1 --out=json | jq'
-        
-
 
 # Restart Salt master to apply changes
 salt_master_service:
@@ -214,4 +199,4 @@ salt_master_service:
 
 # Include GPG configuration
 include:
-  - salt-master.gpg 
+  - salt-master.gpg

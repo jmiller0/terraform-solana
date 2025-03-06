@@ -32,7 +32,7 @@ system_packages:
   file.directory:
     - user: root
     - group: root
-    - mode: 755
+    - mode: '0755'
 
 set_performance_governor:
   cmd.run:
@@ -47,13 +47,11 @@ sshd_config:
     - contents: |
         # Package generated configuration file
         # See the sshd_config(5) manpage for details
-        
         Port 22
         Protocol 2
         HostKey /etc/ssh/ssh_host_rsa_key
         HostKey /etc/ssh/ssh_host_ecdsa_key
         HostKey /etc/ssh/ssh_host_ed25519_key
-        
         # Authentication
         PermitRootLogin no
         PubkeyAuthentication yes
@@ -62,11 +60,9 @@ sshd_config:
         ChallengeResponseAuthentication no
         UsePAM yes
         AuthorizedKeysFile .ssh/authorized_keys
-        
         # Logging
         SyslogFacility AUTH
         LogLevel INFO
-        
         # Other settings
         X11Forwarding no
         PrintMotd no
@@ -80,13 +76,13 @@ sshd_service:
     - enable: True
     - reload: True
     - watch:
-      - file: sshd_config 
+      - file: sshd_config
 
 # Deploy hostname setting script
 /usr/local/bin/set_hostname.sh:
   file.managed:
     - source: salt://common/files/set_hostname.sh
-    - mode: 755
+    - mode: '0755'
     - user: root
     - group: root
 
