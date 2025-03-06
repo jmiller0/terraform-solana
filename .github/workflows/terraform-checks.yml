@@ -6,7 +6,7 @@ on:
 
 jobs:
   terraform-checks:
-    name: Terraform     
+    name: Terraform Fmt and Validate     
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -18,7 +18,7 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: "1.5.7"
+        terraform_version: latest
     
     - name: Terraform Format
       id: fmt
@@ -44,12 +44,22 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Run tflint
-      uses: terraform-linters/setup-tflint@v1.0.0
+    - uses: actions/cache@v4
+      name: Cache plugin dir
       with:
-        tflint_version: v0.44.0
+        path: ~/.tflint.d/plugins
+        key: ${{ runner.os }}-tflint-${{ hashFiles('.tflint.hcl') }}
     
-    - name: Run tflint
-      run: tflint --init && tflint
-      env:
-        TF_INPUT: false
+    - uses: terraform-linters/setup-tflint@v4
+      name: Setup TFLint
+      with:
+        tflint_version: latest
+    
+    - name: Show version
+      run: tflint --version
+    
+    - name: Init TFLint
+      run: tflint --init
+    
+    - name: Run TFLint
+      run: tflint -f compact
