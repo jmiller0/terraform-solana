@@ -26,6 +26,11 @@ resource "google_storage_bucket" "validator" {
 
   uniform_bucket_level_access = true
 
+  labels = {
+    Environment = "Dev"
+    Service     = "Storage"
+  }
+
   lifecycle_rule {
     condition {
       age = 90  # days

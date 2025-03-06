@@ -27,6 +27,15 @@ resource "aws_s3_bucket_lifecycle_configuration" "validator" {
       days = 365
     }
   }
+
+  rule {
+    id     = "abort_incomplete_multipart_uploads"
+    status = "Enabled"
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 7
+    }
+  }
 }
 
 resource "aws_s3_bucket_public_access_block" "validator" {
