@@ -92,7 +92,7 @@ resource "aws_instance" "salt_master" {
     inline = [
       "sudo mkdir -p /srv",
       "sudo mv /tmp/salt /srv/",
-      "sudo chown -R root:salt /srv",
+      "sudo chown -R root:root /srv",
       "sudo chmod -R 755 /srv",
     ]
 
