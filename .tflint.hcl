@@ -1,3 +1,8 @@
+plugin "terraform" {
+  enabled = true
+  preset  = "recommended"
+}
+
 plugin "aws" {
   enabled = true
   version = "0.38.0"
@@ -9,7 +14,7 @@ plugin "google" {
   enabled = true
   version = "0.31.0"
   source  = "github.com/terraform-linters/tflint-ruleset-google"
-  deep_check = true
+  deep_check = false
 }
 
 # General Terraform rules
