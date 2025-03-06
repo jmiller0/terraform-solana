@@ -21,13 +21,4 @@ configure_vault_minion:
     - require:
       - pip: vault_extension
 
-# Restart salt-minion service to apply Vault configuration
-vault_init_minion_restart:
-  service.running:
-    - name: salt-minion
-    - enable: True
-    - watch:
-      - file: configure_vault_minion
-    - require:
-      - pip: vault_extension
 

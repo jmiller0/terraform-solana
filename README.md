@@ -90,6 +90,7 @@ The infrastructure consists of several key components:
 - Access to AWS and GCP accounts
 - Solana validator keypairs
 - GPG for encrypting sensitive data
+- Public IP address (will be automatically detected or can be manually provided)
 
 ## Setup Instructions
 

@@ -11,6 +11,20 @@ initial_setup() {
         cp terraform.tfvars.example terraform.tfvars
     fi
 
+    # Check and add admin IP if needed
+    if ! grep -q "admin_ip" terraform.tfvars; then
+        echo "Detecting your public IP address..."
+        PUBLIC_IP=$(curl -s https://api.ipify.org)
+        if [ -z "$PUBLIC_IP" ]; then
+            echo "Failed to detect public IP address automatically."
+            read -p "Please enter your public IP address: " PUBLIC_IP
+        fi
+        echo "Adding admin_ip to terraform.tfvars..."
+        echo "admin_ip = \"$PUBLIC_IP/32\"" >> terraform.tfvars
+    else
+        echo "admin_ip already exists in terraform.tfvars"
+    fi
+
     # Check and add SSH public key if needed
     if ! grep -q "ssh_public_key" terraform.tfvars; then
         if [ -f ~/.ssh/id_rsa.pub ]; then
