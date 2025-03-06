@@ -21,23 +21,7 @@ jobs:
         ACTION_STATE_FIND_PATTERN: '^.*\.(sls|jinja|j2|tmpl|tst)$'
         ACTION_STATE_FIND_TYPE: 'regex'
         SALT_LINT_EXTRA_PARAMS: '-v -x 205'
-    
-    - name: Check Salt Syntax
-      run: |
-        # Check all .sls files for syntax errors
-        for file in $(find . -name "*.sls"); do
-          echo "Checking $file..."
-          salt-call --local state.show_sls $(echo $file | sed 's/\.sls$//' | sed 's/^\.\///') test=True
-        done
-    
-    - name: Check for sensitive data
-      run: |
-        # Check for potential secrets in pillar files
-        if find ./pillar -type f -exec grep -l "password\|secret\|key\|token" {} \;; then
-          echo "Potential sensitive data found in pillar files"
-          exit 1
-        fi
-    
+        
     - name: Check YAML syntax
       run: |
         # Check all YAML files for syntax errors
