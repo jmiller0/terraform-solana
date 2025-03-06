@@ -9,6 +9,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "validator" {
     id     = "cleanup_old_versions"
     status = "Enabled"
 
+    filter {
+      prefix = ""
+    }
+
     noncurrent_version_expiration {
       noncurrent_days = 30
     }
@@ -31,6 +35,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "validator" {
   rule {
     id     = "abort_incomplete_multipart_uploads"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
 
     abort_incomplete_multipart_upload {
       days_after_initiation = 7

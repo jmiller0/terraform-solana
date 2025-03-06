@@ -27,8 +27,8 @@ resource "google_storage_bucket" "validator" {
   uniform_bucket_level_access = true
 
   labels = {
-    Environment = "Dev"
-    Service     = "Storage"
+    environment = "dev"
+    service     = "storage"
   }
 
   lifecycle_rule {
