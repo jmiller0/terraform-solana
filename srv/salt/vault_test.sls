@@ -31,39 +31,32 @@ test_vault_read_secret:
     - name: /tmp/vault_test/read_secret_test.txt
     - contents: |
         Vault Secret Test Results:
-        
         {%- set success = False %}
         {%- set error_message = "No error details available" %}
         {%- set vault_config = salt['config.get']('vault', {}) %}
         {%- if vault_config %}
           {%- set success = True %}
           Vault is configured on this minion.
-          
           Configuration:
           - Auth Method: {{ vault_config.get('auth', {}).get('method', 'Not specified') }}
           - Role ID: {{ vault_config.get('auth', {}).get('role_id', 'Not specified') }}
           - Config Location: {{ vault_config.get('config_location', 'Not specified') }}
           - Verify SSL: {{ vault_config.get('verify', 'Not specified') }}
-          
           Attempting to read secret from Vault:
           {%- set test_path = 'secret/test/simple_kv' %}
-          
           {%- if salt['cmd.retcode']('salt-call vault.read_secret ' + test_path + ' --out=txt', python_shell=True) == 0 %}
           Secret access successful!
-          
           The minion can successfully read from the Vault path: {{ test_path }}
           {%- else %}
           Secret access failed.
           {%- endif %}
         {%- else %}
           Vault is not configured on this minion.
-          
           Please check:
           1. The vault.conf file exists in /etc/salt/minion.d/
           2. The Salt minion has been restarted after configuration
           3. The Vault server is accessible from this minion
         {%- endif %}
-        
         Minion ID: {{ grains['id'] }}
     - user: root
     - group: root

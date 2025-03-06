@@ -7,7 +7,7 @@ include:
 /usr/local/bin/setup_data_disk.sh:
   file.managed:
     - source: salt://common/files/setup_data_disk.sh
-    - mode: 755
+    - mode: '0755'
     - user: root
     - group: root
 
@@ -108,7 +108,7 @@ setup_solana_path:
         fi
     - user: solana
     - group: solana
-    - mode: 644
+    - mode: '0644'
     - require:
       - cmd: install_solana
 

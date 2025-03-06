@@ -48,7 +48,7 @@ configure_validator_approle:
     - require:
       - cmd: enable_approle
     - env:
-        - VAULT_TOKEN: {{ pillar['vault']['token'] }} 
+        - VAULT_TOKEN: {{ pillar['vault']['token'] }}
 
 # Configure AppRole for localhost (salt-master's local minion)
 configure_localhost_approle:

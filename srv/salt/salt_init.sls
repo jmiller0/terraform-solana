@@ -7,7 +7,7 @@ configure_dns_search_domain:
         Domains={{ grains['aws_root_zone'] }}
     - user: root
     - group: root
-    - mode: 644
+    - mode: '0644'
   service.running:
     - name: systemd-resolved
     - enable: True
@@ -67,4 +67,4 @@ salt_init_minion_service:
     - require:
       - pkg: salt_minion_pkg
       - file: basic_minion_config
-      - file: basic_minion_id 
+      - file: basic_minion_id
