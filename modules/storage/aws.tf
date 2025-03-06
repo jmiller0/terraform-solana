@@ -2,6 +2,33 @@ resource "aws_s3_bucket" "validator" {
   bucket = "aws-sol-val"
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "validator" {
+  bucket = aws_s3_bucket.validator.id
+
+  rule {
+    id     = "cleanup_old_versions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+
+    noncurrent_version_transition {
+      noncurrent_days = 7
+      storage_class   = "STANDARD_IA"
+    }
+
+    transition {
+      days          = 90
+      storage_class = "GLACIER"
+    }
+
+    expiration {
+      days = 365
+    }
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "validator" {
   bucket = aws_s3_bucket.validator.id
 
