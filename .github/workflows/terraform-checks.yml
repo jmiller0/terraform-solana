@@ -1,0 +1,55 @@
+name: PR Checks
+
+on:
+  pull_request:
+    branches: [ '*' ]
+
+jobs:
+  terraform-checks:
+    name: Terraform     
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v3
+      with:
+        terraform_version: "1.5.7"
+    
+    - name: Terraform Format
+      id: fmt
+      run: terraform fmt -check
+      continue-on-error: true
+    
+    - name: Terraform Init
+      id: init
+      run: terraform init
+      env:
+        TF_INPUT: false
+    
+    - name: Terraform Validate
+      id: validate
+      run: terraform validate
+      env:
+        TF_INPUT: false
+
+  terraform-lint-checks:
+    name: Terraform Lint
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Run tflint
+      uses: terraform-linters/setup-tflint@v1.0.0
+      with:
+        tflint_version: v0.44.0
+    
+    - name: Run tflint
+      run: tflint --init && tflint
+      env:
+        TF_INPUT: false
