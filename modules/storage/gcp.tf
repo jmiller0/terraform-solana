@@ -6,10 +6,7 @@ resource "google_storage_bucket" "validator" {
 
   uniform_bucket_level_access = true
 
-  labels = {
-    environment = "dev"
-    service     = "storage"
-  }
+  labels = var.common_labels
 
   lifecycle_rule {
     condition {
