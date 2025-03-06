@@ -37,12 +37,6 @@ jobs:
       env:
         TF_INPUT: false
     
-    - name: Terraform Plan
-      id: plan
-      run: terraform plan -no-color
-      env:
-        TF_INPUT: false
-    
     - name: Check for sensitive data
       id: sensitive
       run: |
@@ -62,10 +56,12 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Install Salt
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y salt-master
+    - name: Run salt-lint
+      uses: roaldnefs/salt-lint-action@v0.0.2
+      env:
+        ACTION_STATE_FIND_PATTERN: '^.*\.(sls|jinja|j2|tmpl|tst)$'
+        ACTION_STATE_FIND_TYPE: 'regex'
+        SALT_LINT_EXTRA_PARAMS: '-v'
     
     - name: Check Salt Syntax
       run: |
