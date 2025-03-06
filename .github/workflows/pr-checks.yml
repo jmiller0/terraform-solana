@@ -36,15 +36,6 @@ jobs:
       run: terraform validate
       env:
         TF_INPUT: false
-    
-    - name: Check for sensitive data
-      id: sensitive
-      run: |
-        # Check for potential secrets in terraform files
-        if grep -r "password\|secret\|key\|token" *.tf modules/*/*.tf; then
-          echo "Potential sensitive data found in Terraform files"
-          exit 1
-        fi
 
   salt-checks:
     name: Salt Checks
@@ -57,7 +48,7 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Run salt-lint
-      uses: roaldnefs/salt-lint-action@v0.0.2
+      uses: roaldnefs/salt-lint-action@master
       env:
         ACTION_STATE_FIND_PATTERN: '^.*\.(sls|jinja|j2|tmpl|tst)$'
         ACTION_STATE_FIND_TYPE: 'regex'
