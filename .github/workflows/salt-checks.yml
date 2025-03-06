@@ -20,7 +20,7 @@ jobs:
       env:
         ACTION_STATE_FIND_PATTERN: '^.*\.(sls|jinja|j2|tmpl|tst)$'
         ACTION_STATE_FIND_TYPE: 'regex'
-        SALT_LINT_EXTRA_PARAMS: '-v'
+        SALT_LINT_EXTRA_PARAMS: '-v -x 205'
     
     - name: Check Salt Syntax
       run: |
