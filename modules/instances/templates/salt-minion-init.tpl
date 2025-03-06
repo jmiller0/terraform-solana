@@ -28,18 +28,6 @@ EOF
 # Write minion_id file explicitly
 echo "${minion_id}" > /etc/salt/minion_id
 
-# Set aws_root_zone as a grain
-cat > /etc/salt/grains << EOF
-aws_root_zone: ${aws_root_zone}
-EOF
-
-#Write vault.conf
-cat > /etc/salt/minion.d/vault.conf << EOF
-vault:
-  config_location: master
-  verify: False
-EOF
-
 # Install Salt
 # Ensure keyrings dir exists
 mkdir -p /etc/apt/keyrings
@@ -55,12 +43,4 @@ DEBIAN_FRONTEND=noninteractive apt-get -o Dpkg::Options::="--force-confold" -o D
 # Install Vault extension
 /opt/saltstack/salt/bin/pip3 install saltext-vault
 sleep 30
-# Check service status and ensure it's running
-if ! systemctl is-active --quiet salt-minion; then
-    echo "`date` Salt minion not running, starting service" >> /var/log/salt-minion.log
-    systemctl enable salt-minion
-    systemctl start salt-minion
-    echo "`date` Salt minion started" >> /var/log/salt-minion.log
-else
-    echo "`date` Salt minion already running" >> /var/log/salt-minion.log
-fi
+systemctl restart salt-minion

@@ -30,12 +30,69 @@ resource "aws_instance" "test_minion" {
     ignore_changes = [
       ami, user_data, private_dns_name_options
       ]
-  }
+    }
   
   private_dns_name_options {
     enable_resource_name_dns_a_record = true
     enable_resource_name_dns_aaaa_record = false
     hostname_type = "resource-name"
+  }
+
+  # Create required directories
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /etc/salt/minion.d"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.private_key_path)
+      host        = self.public_ip
+    }
+  }
+
+  # Add file provisioner to copy Vault configuration
+  provisioner "file" {
+    source      = "${path.root}/srv/salt/common/files/vault.conf"
+    destination = "/tmp/vault.conf"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.private_key_path)
+      host        = self.public_ip
+    }
+  }
+
+  # Add file provisioner to copy grains configuration
+  provisioner "file" {
+    content     = "aws_root_zone: ${var.aws_root_zone}\n"
+    destination = "/tmp/grains"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.private_key_path)
+      host        = self.public_ip
+    }
+  }
+
+  # Move files to final locations and set permissions
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mv /tmp/vault.conf /etc/salt/minion.d/",
+      "sudo mv /tmp/grains /etc/salt/grains",
+      "sudo chown root:root /etc/salt/minion.d/vault.conf /etc/salt/grains",
+      "sudo chmod 644 /etc/salt/minion.d/vault.conf /etc/salt/grains"
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.private_key_path)
+      host        = self.public_ip
+    }
   }
 }
 

@@ -59,6 +59,40 @@ basic_minion_id:
     - require:
       - pkg: salt_minion_pkg
 
+# Ensure minion.d directory exists
+minion_d_dir:
+  file.directory:
+    - name: /etc/salt/minion.d
+    - user: root
+    - group: root
+    - mode: '0755'
+    - makedirs: True
+    - require:
+      - pkg: salt_minion_pkg
+
+# Configure Vault settings
+vault_config:
+  file.managed:
+    - name: /etc/salt/minion.d/vault.conf
+    - source: salt://common/files/vault.conf
+    - user: root
+    - group: root
+    - mode: '0644'
+    - require:
+      - file: minion_d_dir
+
+# Configure Salt grains
+configure_grains:
+  file.managed:
+    - name: /etc/salt/grains
+    - contents: |
+        aws_root_zone: {{ grains['aws_root_zone'] }}
+    - user: root
+    - group: root
+    - mode: '0644'
+    - require:
+      - pkg: salt_minion_pkg
+
 # Ensure salt-minion service is running before other states
 salt_init_minion_service:
   service.running:
@@ -68,3 +102,5 @@ salt_init_minion_service:
       - pkg: salt_minion_pkg
       - file: basic_minion_config
       - file: basic_minion_id
+      - file: vault_config
+      - file: configure_grains
