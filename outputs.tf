@@ -57,5 +57,5 @@ output "instances" {
 # Connection Information
 output "connection_strings" {
   description = "SSH connection strings for all instances"
-  value = module.instances.connection_strings
+  value       = module.instances.connection_strings
 } 
