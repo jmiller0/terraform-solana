@@ -1,0 +1,139 @@
+#!/bin/bash
+
+# Function to display usage instructions
+usage() {
+    echo "Usage: Source this script and run any of the following commands:"
+    echo ""
+    echo "  delete_all [aa]                 - Delete all Terraform-managed resources"
+    echo "  delete_salt_master [aa]         - Delete the salt master instance"
+    echo ""
+    echo "  create_gcp_validator [aa]       - Create only GCP validators"
+    echo "  create_gcp_aws_validators [aa]  - Create both GCP and AWS validators"
+    echo "  create_all [aa]                 - Create all instances (validators enabled, minions disabled)"
+    echo ""
+    echo "  create_gcp_minions [aa]         - Create only GCP test minions"
+    echo "  create_aws_minions [aa]         - Create only AWS test minions"
+    echo "  create_gcp_aws_minions [aa]     - Create both GCP and AWS test minions"
+    echo ""
+    echo "  recreate_gcp_minions [aa]       - Recreate GCP test minions (delete and recreate)"
+    echo "  recreate_aws_minions [aa]       - Recreate AWS test minions (delete and recreate)"
+    echo "  recreate_gcp_aws_minions [aa]   - Recreate both GCP and AWS test minions"
+    echo ""
+    echo "  [aa] (optional)                 - Pass 'aa' to enable auto-approve"
+    echo ""
+    echo "Example usage after sourcing the script:"
+    echo "  create_gcp_validator"
+    echo "  delete_all aa"
+}
+
+# Function to delete all instances
+delete_all() {
+    local auto_approve=""
+    if [[ "$1" == "aa" ]]; then
+        auto_approve="-auto-approve"
+    fi
+    echo "Deleting all Terraform-managed resources... (auto-approve: $auto_approve)"
+    echo "terraform apply $auto_approve"
+    time terraform apply $auto_approve
+}
+
+# Function to delete the salt master
+delete_salt_master() {
+    local auto_approve=""
+    if [[ "$1" == "aa" ]]; then
+        auto_approve="-auto-approve"
+    fi
+    echo "Deleting salt master... (auto-approve: $auto_approve)"
+    echo "terraform destroy -target=module.instances.aws_instance.salt_master $auto_approve"
+    time terraform destroy -target=module.instances.aws_instance.salt_master $auto_approve
+}
+
+# Function to create GCP validators only
+create_gcp_validator() {
+    local auto_approve=""
+    if [[ "$1" == "aa" ]]; then
+        auto_approve="-auto-approve"
+    fi
+    echo "Creating only GCP validators... (auto-approve: $auto_approve)"
+    echo "terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' $auto_approve"
+    time terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' $auto_approve
+}
+
+# Function to create both GCP and AWS validators
+create_gcp_aws_validators() {
+    local auto_approve=""
+    if [[ "$1" == "aa" ]]; then
+        auto_approve="-auto-approve"
+    fi
+    echo "Creating both GCP and AWS validators... (auto-approve: $auto_approve)"
+    echo "terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve"
+    time terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve
+}
+
+# Function to create all instances
+create_all() {
+    local auto_approve=""
+    if [[ "$1" == "aa" ]]; then
+        auto_approve="-auto-approve"
+    fi
+    echo "Creating all instances... (auto-approve: $auto_approve)"
+    echo "terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve"
+    time terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve
+}
+
+# Function to create GCP test minions only
+create_gcp_minions() {
+    local auto_approve=""
+    if [[ "$1" == "aa" ]]; then
+        auto_approve="-auto-approve"
+    fi
+    echo "Creating only GCP test minions... (auto-approve: $auto_approve)"
+    echo "terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_gcp_instances=true' $auto_approve"
+    time terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_gcp_instances=true' $auto_approve
+}
+
+# Function to create AWS test minions only
+create_aws_minions() {
+    local auto_approve=""
+    if [[ "$1" == "aa" ]]; then
+        auto_approve="-auto-approve"
+    fi
+    echo "Creating only AWS test minions... (auto-approve: $auto_approve)"
+    echo "terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_aws_instances=true' $auto_approve"
+    time terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_aws_instances=true' $auto_approve
+}
+
+# Function to create both GCP and AWS test minions
+create_gcp_aws_minions() {
+    local auto_approve=""
+    if [[ "$1" == "aa" ]]; then
+        auto_approve="-auto-approve"
+    fi
+    echo "Creating both GCP and AWS test minions... (auto-approve: $auto_approve)"
+    echo "terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve"
+    time terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve
+}
+
+# Function to recreate GCP test minions
+recreate_gcp_minions() {
+    echo "Recreating GCP test minions..."
+    delete_all
+    create_gcp_minions "$1"
+}
+
+# Function to recreate AWS test minions
+recreate_aws_minions() {
+    echo "Recreating AWS test minions..."
+    delete_all
+    create_aws_minions "$1"
+}
+
+# Function to recreate both GCP and AWS test minions
+recreate_gcp_aws_minions() {
+    echo "Recreating both GCP and AWS test minions..."
+    delete_all
+    create_gcp_aws_minions "$1"
+}
+
+
+usage

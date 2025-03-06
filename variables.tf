@@ -1,31 +1,29 @@
+# Network Configuration
+variable "admin_ip" {
+  description = "Admin IP address for SSH access"
+  type        = string
+}
+
+variable "aws_vpc_cidr" {
+  description = "CIDR block for AWS VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "gcp_vpc_cidr" {
+  description = "CIDR block for GCP VPC"
+  type        = string
+  default     = "172.16.0.0/16"
+}
+
 # AWS Configuration
 variable "aws_root_zone" {
   description = "AWS Route53 root zone"
   type        = string
 }
 
-variable "hosted_zone_id" {
-  description = "Route53 hosted zone ID"
-  type        = string
-}
-
-variable "subnet_id" {
-  description = "AWS subnet ID"
-  type        = string
-}
-
-variable "vpc_id" {
-  description = "AWS VPC ID"
-  type        = string
-}
-
-variable "aws_security_group_id" {
-  description = "AWS security group ID"
-  type        = string
-}
-
-variable "aws_salt_master_sg_id" {
-  description = "AWS security group ID for Salt master"
+variable "aws_zone_id" {
+  description = "AWS Route53 hosted zone ID"
   type        = string
 }
 
@@ -38,26 +36,13 @@ variable "gcp_project_id" {
 variable "gcp_region" {
   description = "GCP region for all resources"
   type        = string
+  default     = "us-central1"
 }
 
 variable "gcp_zone" {
   description = "GCP zone for instances"
   type        = string
-}
-
-variable "gcp_network_name" {
-  description = "GCP network name"
-  type        = string
-}
-
-variable "gcp_subnetwork_name" {
-  description = "GCP subnetwork name"
-  type        = string
-}
-
-variable "gcp_vpc_cidr" {
-  description = "CIDR block for GCP VPC"
-  type        = string
+  default     = "us-central1-a"
 }
 
 # Instance Creation Flags
@@ -74,24 +59,21 @@ variable "create_test_minions" {
 }
 
 variable "create_gcp_instances" {
-  description = "Whether to create the GCP instances"
+  description = "Whether to create GCP instances"
   type        = bool
   default     = false
 }
 
 variable "create_aws_instances" {
-  description = "Whether to create the AWS instances"
+  description = "Whether to create AWS instances"
   type        = bool
   default     = false
 }
 
+# Authentication
 variable "ssh_public_key" {
   description = "SSH public key for instance access"
   type        = string
 }
 
-variable "private_key_path" {
-  description = "Path to the private key file for SSH access"
-  type        = string
-  default     = "~/.ssh/id_rsa"
-}
+

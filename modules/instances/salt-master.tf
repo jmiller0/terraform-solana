@@ -66,6 +66,36 @@ resource "aws_instance" "salt_master" {
   lifecycle {
     ignore_changes = [user_data]
   }
+
+  # Add file provisioner to copy srv directory
+  provisioner "file" {
+    source      = "${path.root}/srv/salt"
+    destination = "/tmp/salt"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.private_key_path)
+      host        = self.public_ip
+    }
+  }
+
+  # Add remote-exec provisioner to move files and set permissions
+  provisioner "remote-exec" {
+    inline = [
+      "sudo mkdir -p /srv",
+      "sudo mv /tmp/salt /srv/",
+      "sudo chown -R root:salt /srv",
+      "sudo chmod -R 755 /srv",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = file(var.private_key_path)
+      host        = self.public_ip
+    }
+  }
 }
 
 # Allow Salt master to access its own Vault server (public IP)

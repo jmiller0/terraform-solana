@@ -29,8 +29,6 @@ apt-get install -y vault
 # Create required directories
 mkdir -p /etc/salt/master.d
 mkdir -p /etc/salt/gpgkeys
-mkdir -p /srv/salt
-mkdir -p /srv/salt/pillar
 mkdir -p /opt/vault/data
 mkdir -p /opt/vault/tls
 
@@ -39,9 +37,6 @@ chown -R root:root /etc/salt
 chown -R root:salt /etc/salt/gpgkeys
 chmod 700 /etc/salt/gpgkeys
 chown -R vault:vault /opt/vault
-chown -R root:salt /srv/salt
-chmod 755 /srv/salt
-chmod 750 /srv/salt/pillar
 
 # Configure GPG for Salt master
 cat > /etc/salt/master.d/gpg.conf << EOF
@@ -279,20 +274,21 @@ $(cat /tmp/cert.gpg | sed 's/^/      /')
 $(cat /tmp/key.gpg | sed 's/^/      /')
 EOF
 
-# Create token pillar file
-cat > /srv/salt/pillar/vault/token.sls << EOF
-vault:
-  token: {{ salt['file.read']('/etc/salt/vault_token') | default('', true) | replace('\n', '') | replace('\r', '') }}
-EOF
 
-# Set proper permissions on pillar files
-chmod 640 /srv/salt/pillar/vault/certs.sls
-chmod 640 /srv/salt/pillar/vault/token.sls
-chown root:salt /srv/salt/pillar/vault/certs.sls
-chown root:salt /srv/salt/pillar/vault/token.sls
+
+
+# # Create token pillar file
+# cat > /srv/salt/pillar/vault/token.sls << EOF
+# vault:
+#   token: {{ salt['file.read']('/etc/salt/vault_token') | default('', true) | replace('\n', '') | replace('\r', '') }}
+# EOF
+
+# # Set proper permissions on pillar files
+# chmod 640 /srv/salt/pillar/vault/token.sls
+# chown root:salt /srv/salt/pillar/vault/token.sls
 
 # Clean up temporary files securely
-#shred -u /tmp/cert.txt /tmp/key.txt /tmp/token.txt /tmp/cert.gpg /tmp/key.gpg /tmp/token.gpg
+shred -u /tmp/cert.txt /tmp/key.txt /tmp/token.txt /tmp/cert.gpg /tmp/key.gpg /tmp/token.gpg /tmp/role_id.txt /tmp/secret_id.txt /tmp/role_id.gpg /tmp/secret_id.gpg
 
 # Final validation
 if ! gpg --list-keys --homedir /etc/salt/gpgkeys | grep -q "Salt Master"; then
