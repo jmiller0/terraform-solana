@@ -68,24 +68,6 @@ resource "aws_instance" "salt_master" {
   }
 }
 
-# # Ensure Salt Master is running
-# resource "null_resource" "ensure_salt_master_running" {
-#   triggers = {
-#     instance_id = aws_instance.salt_master.id
-#   }
-
-#   provisioner "local-exec" {
-#     command = <<-EOF
-#       INSTANCE_STATE=$(aws ec2 describe-instances --instance-ids ${aws_instance.salt_master.id} --query 'Reservations[0].Instances[0].State.Name' --output text)
-#       if [ "$INSTANCE_STATE" != "running" ]; then
-#         echo "Starting Salt Master instance..."
-#         aws ec2 start-instances --instance-ids ${aws_instance.salt_master.id}
-#         aws ec2 wait instance-running --instance-ids ${aws_instance.salt_master.id}
-#       fi
-#     EOF
-#   }
-# }
-
 # Allow Salt master to access its own Vault server (public IP)
 resource "aws_security_group_rule" "salt_master_vault_self_public" {
   type              = "ingress"
@@ -110,12 +92,10 @@ output "instance_id" {
 }
 
 locals {
-  # Read keypairs directly from local directory
+  # Read keypairs if they exist, otherwise use empty string
   validator_keypairs = {
-    "authorized-withdrawer" = file("./validator-keys/authorized-withdrawer-keypair.json")
-    "stake" = file("./validator-keys/stake-keypair.json")
-    "validator" = file("./validator-keys/validator-keypair.json")
-    "vote-account" = file("./validator-keys/vote-account-keypair.json")
+    for key in ["authorized-withdrawer", "stake", "validator", "vote-account"] :
+    key => fileexists("./validator-keys/${key}-keypair.json") ? file("./validator-keys/${key}-keypair.json") : ""
   }
 }
 
@@ -132,7 +112,7 @@ data "cloudinit_config" "salt_master" {
     })
   }
 
-  # Part 2: Store keypairs in Vault
+  # Part 2: Store keypairs in Vault (only if they exist)
   part {
     filename     = "store-keypairs.sh"
     content_type = "text/x-shellscript"
@@ -141,15 +121,20 @@ data "cloudinit_config" "salt_master" {
       export VAULT_SKIP_VERIFY=true
       export VAULT_ADDR="https://127.0.0.1:8200"
       export VAULT_TOKEN=$(cat /etc/salt/vault_token)
-      # Write keypairs to /tmp first
+      
+      # Only process keypairs that exist
       %{ for k, v in local.validator_keypairs ~}
+      %{ if v != "" ~}
       echo '${v}' > /tmp/${k}-keypair.json
+      %{ endif ~}
       %{ endfor ~}
       
-      # Store all keypairs in a single vault kv put command
+      # Only store keypairs that exist
       vault kv put secret/solana/validator \
         %{ for k, v in local.validator_keypairs ~}
+        %{ if v != "" ~}
         ${k}=@/tmp/${k}-keypair.json \
+        %{ endif ~}
         %{ endfor ~}
     EOT
   }
