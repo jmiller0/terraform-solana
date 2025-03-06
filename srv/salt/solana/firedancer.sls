@@ -49,21 +49,6 @@ set_firedancer_ownership:
     - require:
         - git: clone_firedancer
 
-# Verify Rust and Cargo are working before building
-# verify_rust_cargo:
-#   cmd.run:
-#     - name: |
-#         source $HOME/.cargo/env
-#         rustc --version
-#         cargo --version
-#     - runas: solana
-#     - shell: /bin/bash
-#     - env:
-#         - HOME: /home/solana
-#         - USER: solana
-#     - require:
-#       - cmd: install_rust
-
 # Build Firedancer - only if CPU cores > 32
 build_firedancer:
   cmd.run:
