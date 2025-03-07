@@ -2,8 +2,8 @@
 resource "aws_instance" "test_minion" {
   count         = var.create_aws_instances && var.create_test_minions ? 1 : 0
   depends_on    = [aws_instance.salt_master]
-  ami           = local.ubuntu_ami[data.aws_region.current.name]
-  instance_type = "t3a.medium"
+  ami           = local.ubuntu_ami[local.is_arm_instance ? "arm64" : "x86_64"]
+  instance_type = var.instance_type
   subnet_id     = var.subnet_id
 
   vpc_security_group_ids = [var.aws_security_group_id]
