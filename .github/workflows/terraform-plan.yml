@@ -54,9 +54,21 @@ jobs:
           TF_VAR_github_username: ${{ github.repository_owner }}
           TF_VAR_github_repo: ${{ github.event.repository.name }}
         run: |
-          # Run plan and capture exit code
-          terraform plan -input=false -no-color | tee tfplan.txt
-          exit ${PIPESTATUS[0]}
+          # Run plan and save to file
+          terraform plan -input=false -no-color -out=tfplan
+          
+      - name: Show Plan
+        id: show
+        run: |
+          # Show the plan and save output
+          terraform show -no-color tfplan > tfplan.txt
+
+      - name: Post Plan to PR
+        uses: borchero/terraform-plan-comment@v2
+        with:
+          token: ${{ github.token }}
+          planfile: tfplan
+          skip-empty: true
 
       - name: Upload Terraform Plan
         if: always()
@@ -67,7 +79,7 @@ jobs:
           retention-days: 5
 
       - name: Check Plan Status
-        if: steps.plan.outcome == 'failure'
+        if: steps.plan.outcome == 'failure' || steps.show.outcome == 'failure'
         run: exit 1
 
       - name: Remove Plan Label
