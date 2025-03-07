@@ -37,4 +37,5 @@ jobs:
           docker compose build
           docker compose run --rm terraform terraform version
           docker compose run --rm terraform aws --version
-          docker compose run --rm terraform gcloud version 
+          docker compose run --rm terraform gcloud version
+          docker-compose run --rm terraform terraform init
