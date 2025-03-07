@@ -1,4 +1,4 @@
-name: Docker Build and Test
+name: Docker Build and Test Terraform Solana
 
 on:
   push:
@@ -35,8 +35,6 @@ jobs:
       - name: Test with docker-compose
         run: |
           docker compose build
-          docker compose up -d
-          docker compose exec -T terraform terraform version
-          docker compose exec -T terraform aws --version
-          docker compose exec -T terraform gcloud version
-          docker compose down 
+          docker compose run --rm terraform terraform version
+          docker compose run --rm terraform aws --version
+          docker compose run --rm terraform gcloud version 
