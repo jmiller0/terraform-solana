@@ -76,4 +76,15 @@ variable "ssh_public_key" {
   type        = string
 }
 
+# GitHub Configuration
+variable "github_org" {
+  description = "GitHub organization name for OIDC configuration"
+  type        = string
+}
+
+variable "github_repo" {
+  description = "GitHub repository name for OIDC configuration"
+  type        = string
+}
+
 

@@ -48,4 +48,13 @@ module "storage" {
   salt_master_instance_role = module.instances.salt_master_instance_role
   aws_root_zone             = var.aws_root_zone
   common_labels             = local.common_labels
+}
+
+# GitHub Actions OIDC configuration
+module "iam" {
+  source = "./modules/iam"
+
+  github_org  = var.github_org
+  github_repo = var.github_repo
+  aws_region  = "us-east-1"  # Using default region for GitHub Actions
 } 
