@@ -27,6 +27,12 @@ variable "aws_zone_id" {
   type        = string
 }
 
+variable "aws_region" {
+  description = "AWS region for all resources"
+  type        = string
+  default     = "us-east-1"
+}
+
 # GCP Configuration
 variable "gcp_project_id" {
   description = "GCP Project ID"
@@ -77,8 +83,8 @@ variable "ssh_public_key" {
 }
 
 # GitHub Configuration
-variable "github_org" {
-  description = "GitHub organization name for OIDC configuration"
+variable "github_username" {
+  description = "GitHub username for OIDC configuration"
   type        = string
 }
 

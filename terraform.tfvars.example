@@ -10,7 +10,7 @@ gcp_project_id = "my-project-id"   # Your GCP project ID
 admin_ip = "YOUR_IP_ADDRESS/32"    # Replace with your IP address
 
 # GitHub Configuration for OIDC
-github_org = "your-org"            # Your GitHub organization name
+github_username = "your-username"   # Your GitHub username
 github_repo = "terraform-solana"   # This repository name
 
 # Optional Variables

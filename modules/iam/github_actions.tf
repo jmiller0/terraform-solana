@@ -23,8 +23,8 @@ resource "aws_iam_role" "github_actions" {
             "token.actions.githubusercontent.com:aud" = "sts.amazonaws.com"
           }
           StringLike = {
-            # Adjust this to match your GitHub repository
-            "token.actions.githubusercontent.com:sub" = "repo:${var.github_org}/${var.github_repo}:*"
+            # Match personal repository
+            "token.actions.githubusercontent.com:sub" = "repo:${var.github_username}/${var.github_repo}:*"
           }
         }
       }
@@ -32,7 +32,7 @@ resource "aws_iam_role" "github_actions" {
   })
 }
 
-# Limited permissions policy for testing
+# Comprehensive permissions policy for all Terraform resources
 resource "aws_iam_role_policy" "github_actions_test" {
   name = "github-actions-test-policy"
   role = aws_iam_role.github_actions.id
@@ -43,28 +43,128 @@ resource "aws_iam_role_policy" "github_actions_test" {
       {
         Effect = "Allow"
         Action = [
-          # EC2 permissions
+          # EC2 Instance Management
           "ec2:RunInstances",
           "ec2:DescribeInstances",
           "ec2:TerminateInstances",
+          "ec2:StartInstances",
+          "ec2:StopInstances",
           "ec2:CreateTags",
+          "ec2:DeleteTags",
           "ec2:DescribeTags",
-          # VPC permissions
+          "ec2:ModifyInstanceAttribute",
+          "ec2:DescribeInstanceAttribute",
+          
+          # Spot Instance Management
+          "ec2:RequestSpotInstances",
+          "ec2:CancelSpotInstanceRequests",
+          "ec2:DescribeSpotInstanceRequests",
+          "ec2:CreateSpotDatafeedSubscription",
+          "ec2:DeleteSpotDatafeedSubscription",
+          
+          # VPC and Networking
           "ec2:DescribeVpcs",
+          "ec2:CreateVpc",
+          "ec2:DeleteVpc",
+          "ec2:ModifyVpcAttribute",
           "ec2:DescribeSubnets",
+          "ec2:CreateSubnet",
+          "ec2:DeleteSubnet",
+          "ec2:ModifySubnetAttribute",
           "ec2:DescribeSecurityGroups",
-          # IAM permissions
+          "ec2:CreateSecurityGroup",
+          "ec2:DeleteSecurityGroup",
+          "ec2:AuthorizeSecurityGroupIngress",
+          "ec2:RevokeSecurityGroupIngress",
+          "ec2:UpdateSecurityGroupRuleDescriptionsIngress",
+          "ec2:AuthorizeSecurityGroupEgress",
+          "ec2:RevokeSecurityGroupEgress",
+          "ec2:UpdateSecurityGroupRuleDescriptionsEgress",
+          
+          # Internet Gateway
+          "ec2:CreateInternetGateway",
+          "ec2:DeleteInternetGateway",
+          "ec2:AttachInternetGateway",
+          "ec2:DetachInternetGateway",
+          "ec2:DescribeInternetGateways",
+          
+          # Route Tables
+          "ec2:CreateRoute",
+          "ec2:DeleteRoute",
+          "ec2:CreateRouteTable",
+          "ec2:DeleteRouteTable",
+          "ec2:AssociateRouteTable",
+          "ec2:DisassociateRouteTable",
+          "ec2:ReplaceRouteTableAssociation",
+          "ec2:DescribeRouteTables",
+          
+          # EBS Volumes
+          "ec2:CreateVolume",
+          "ec2:DeleteVolume",
+          "ec2:AttachVolume",
+          "ec2:DetachVolume",
+          "ec2:ModifyVolume",
+          "ec2:DescribeVolumes",
+          "ec2:DescribeVolumeStatus",
+          
+          # Key Pairs
+          "ec2:CreateKeyPair",
+          "ec2:DeleteKeyPair",
+          "ec2:ImportKeyPair",
+          "ec2:DescribeKeyPairs",
+          
+          # IAM Management
           "iam:GetRole",
           "iam:GetRolePolicy",
-          # S3 permissions for Terraform state (if using S3 backend)
+          "iam:CreateRole",
+          "iam:DeleteRole",
+          "iam:PutRolePolicy",
+          "iam:DeleteRolePolicy",
+          "iam:CreateInstanceProfile",
+          "iam:DeleteInstanceProfile",
+          "iam:AddRoleToInstanceProfile",
+          "iam:RemoveRoleFromInstanceProfile",
+          "iam:GetInstanceProfile",
+          "iam:ListInstanceProfilesForRole",
+          
+          # S3 Access
           "s3:ListBucket",
           "s3:GetObject",
           "s3:PutObject",
-          # Route53 permissions
+          "s3:DeleteObject",
+          "s3:CreateBucket",
+          "s3:DeleteBucket",
+          "s3:PutBucketPolicy",
+          "s3:DeleteBucketPolicy",
+          "s3:GetBucketPolicy",
+          "s3:PutBucketVersioning",
+          "s3:GetBucketVersioning",
+          "s3:PutBucketPublicAccessBlock",
+          "s3:GetBucketPublicAccessBlock",
+          
+          # Route53 DNS Management
           "route53:ListHostedZones",
           "route53:GetHostedZone",
           "route53:ListResourceRecordSets",
-          "route53:ChangeResourceRecordSets"
+          "route53:ChangeResourceRecordSets",
+          "route53:CreateHostedZone",
+          "route53:DeleteHostedZone",
+          "route53:GetChange",
+          
+          # KMS for encryption
+          "kms:CreateGrant",
+          "kms:Decrypt",
+          "kms:DescribeKey",
+          "kms:GenerateDataKey",
+          
+          # CloudWatch Logs
+          "logs:CreateLogGroup",
+          "logs:DeleteLogGroup",
+          "logs:DescribeLogGroups",
+          "logs:CreateLogStream",
+          "logs:DeleteLogStream",
+          "logs:DescribeLogStreams",
+          "logs:PutLogEvents"
         ]
         Resource = "*"
         Condition = {

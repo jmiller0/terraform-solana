@@ -102,4 +102,15 @@ variable "instance_type" {
   default     = "t4g.medium"
 }
 
+# IAM Configuration
+variable "validator_instance_profile_name" {
+  description = "Name of the instance profile for validator instances"
+  type        = string
+}
+
+variable "salt_master_instance_profile_name" {
+  description = "Name of the instance profile for salt master instance"
+  type        = string
+}
+
 
