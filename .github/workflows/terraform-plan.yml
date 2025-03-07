@@ -12,6 +12,7 @@ permissions:
   checks: write
   issues: write
   statuses: write
+  actions: read
 
 jobs:
   plan:

@@ -9,6 +9,10 @@ permissions:
   id-token: write
   contents: read
   pull-requests: write
+  checks: write
+  issues: write
+  statuses: write
+  actions: read
 
 jobs:
   apply:
