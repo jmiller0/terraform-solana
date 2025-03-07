@@ -185,3 +185,52 @@ The infrastructure consists of several key components:
    - Check Vault status and logs
    - Verify AppRole configuration
 
+## Docker Setup
+
+This project includes a Docker configuration for running Terraform commands without needing to install dependencies locally. The Docker setup includes all necessary tools:
+
+- Terraform
+- AWS CLI
+- Google Cloud SDK
+- Other required utilities
+
+### Prerequisites
+
+- Docker
+- Docker Compose
+- AWS credentials (in `~/.aws`)
+- GCP credentials (in `~/.config/gcloud`)
+
+### Using Docker
+
+1. Build and start the container:
+   ```bash
+   docker-compose build
+   docker-compose up -d
+   ```
+
+2. Run Terraform commands:
+   ```bash
+   # Enter the container
+   docker-compose exec terraform bash
+
+   # Or run commands directly
+   docker-compose run --rm terraform terraform plan
+   docker-compose run --rm terraform terraform apply
+   ```
+
+3. Environment Variables:
+   - `AWS_PROFILE`: Set your AWS profile (default: "default")
+   - `TF_LOG`: Set Terraform log level (default: "INFO")
+
+   Example:
+   ```bash
+   AWS_PROFILE=prod TF_LOG=DEBUG docker-compose run --rm terraform terraform plan
+   ```
+
+### Notes
+
+- Your local AWS and GCP credentials are mounted read-only in the container
+- The entire project directory is mounted at `/workspace` in the container
+- Terraform state and other files are persisted on your local machine
+
