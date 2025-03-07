@@ -1,4 +1,4 @@
-FROM hashicorp/terraform:1.7.3
+FROM hashicorp/terraform:latest
 
 # Install required packages
 RUN apk add --no-cache \
@@ -9,13 +9,17 @@ RUN apk add --no-cache \
     git \
     jq \
     aws-cli \
+    nodejs \
+    npm \
     && rm -rf /var/cache/apk/*
 
-# Install Google Cloud SDK
-RUN curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-458.0.0-linux-x86_64.tar.gz && \
-    tar -xf google-cloud-cli-458.0.0-linux-x86_64.tar.gz && \
-    ./google-cloud-sdk/install.sh --quiet && \
-    rm google-cloud-cli-458.0.0-linux-x86_64.tar.gz
+# Install latest Google Cloud SDK
+RUN curl -O https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz && \
+    tar zxvf google-cloud-sdk.tar.gz && \
+    rm google-cloud-sdk.tar.gz && \
+    ./google-cloud-sdk/install.sh --quiet --path-update=true --usage-reporting=false --additional-components alpha beta && \
+    ln -s /google-cloud-sdk/bin/gcloud /usr/local/bin/ && \
+    ln -s /google-cloud-sdk/bin/gsutil /usr/local/bin/
 
 # Set up working directory
 WORKDIR /workspace
