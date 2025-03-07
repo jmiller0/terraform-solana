@@ -24,6 +24,12 @@ RUN curl -O https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz &&
 # Set up working directory
 WORKDIR /workspace
 
+# Copy scripts
+COPY scripts /workspace/scripts
+
+# Set up bash environment
+RUN echo "source /workspace/scripts/funcs" >> ~/.bashrc
+
 # Copy entrypoint script
 COPY scripts/docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod +x /docker-entrypoint.sh
