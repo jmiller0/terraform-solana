@@ -14,6 +14,10 @@ resource "aws_iam_role" "validator" {
       }
     ]
   })
+
+  tags = {
+    Name = "validator-role"
+  }
 }
 
 # S3 Access Policy for Validator
@@ -94,8 +98,8 @@ resource "aws_iam_role_policy" "validator_ec2" {
   })
 }
 
-# Add Route53 permissions to instance role
-resource "aws_iam_role_policy" "route53_policy" {
+# Route53 permissions for validator
+resource "aws_iam_role_policy" "validator_route53" {
   name = "route53-update-policy"
   role = aws_iam_role.validator.id
 
@@ -113,8 +117,12 @@ resource "aws_iam_role_policy" "route53_policy" {
   })
 }
 
-# Instance Profile
+# Instance Profile for Validator
 resource "aws_iam_instance_profile" "validator" {
   name = "validator-profile"
   role = aws_iam_role.validator.name
+
+  tags = {
+    Name = "validator-instance-profile"
+  }
 } 

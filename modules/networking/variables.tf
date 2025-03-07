@@ -27,4 +27,9 @@ variable "gcp_validator_external_ips" {
   type        = list(string)
   description = "External IPs of GCP validators"
   default     = []
+}
+
+variable "aws_region" {
+  description = "AWS region for networking resources"
+  type        = string
 } 

@@ -14,11 +14,6 @@ output "salt_master_dns" {
   value       = aws_instance.salt_master.public_dns
 }
 
-output "salt_master_instance_role" {
-  description = "IAM role ARN for salt master instance"
-  value       = aws_iam_role.salt_master.arn
-}
-
 # AWS Instance Information
 output "aws_validator_private_ip" {
   description = "Private IP of AWS validator"
@@ -86,15 +81,10 @@ output "gcp_validator_data_disk_id" {
   value       = (var.create_validators && var.create_gcp_instances) ? google_compute_disk.validator_data[0].id : null
 }
 
-# IAM and Service Account Information
-output "validator_instance_role" {
-  description = "IAM role ARN for validator instance"
-  value       = aws_iam_role.validator.arn
-}
-
+# Service Account Information
 output "validator_service_account" {
   description = "GCP service account email for validator"
-  value       = google_service_account.validator.email
+  value       = var.validator_service_account_email
 }
 
 # DNS Records

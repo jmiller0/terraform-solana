@@ -9,6 +9,10 @@ gcp_project_id = "my-project-id"   # Your GCP project ID
 # Network Configuration
 admin_ip = "YOUR_IP_ADDRESS/32"    # Replace with your IP address
 
+# GitHub Configuration for OIDC
+github_username = "your-username"   # Your GitHub username
+github_repo = "terraform-solana"   # This repository name
+
 # Optional Variables
 # Optional: GCP configuration
 #gcp_region = "us-central1"         # Your preferred GCP region
@@ -19,7 +23,7 @@ admin_ip = "YOUR_IP_ADDRESS/32"    # Replace with your IP address
 #test_minion_instance_type = "t3.micro"   # Instance type for test minions
 
 # Optional: Network configuration
-v#pc_cidr = "10.0.0.0/16"          # VPC CIDR block
+#vpc_cidr = "10.0.0.0/16"          # VPC CIDR block
 #subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24"]  # Subnet CIDR blocks
 
 # Optional: Tags

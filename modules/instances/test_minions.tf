@@ -8,7 +8,7 @@ resource "aws_instance" "test_minion" {
 
   vpc_security_group_ids = [var.aws_security_group_id]
   key_name               = aws_key_pair.deployer.key_name
-  iam_instance_profile   = aws_iam_instance_profile.validator.name
+  iam_instance_profile   = var.validator_instance_profile_name
 
   root_block_device {
     volume_size = 20

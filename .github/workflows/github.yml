@@ -1,0 +1,41 @@
+name: Docker Build and Test Terraform Solana
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker.yml'
+      - 'scripts/docker-entrypoint.sh'
+  pull_request:
+    branches: [ "*" ]
+    paths:
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker.yml'
+      - 'scripts/docker-entrypoint.sh'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: ndeloof/install-compose-action@v0.0.1
+      
+      - name: Build and test Docker image
+        run: |
+          docker build -t terraform-solana:test .
+          docker run --rm terraform-solana:test terraform version
+          docker run --rm terraform-solana:test aws --version
+          docker run --rm terraform-solana:test gcloud version
+          docker run --rm -v ${{ github.workspace }}:/workspace terraform-solana:test terraform init
+      
+      - name: Test with docker-compose
+        run: |
+          docker compose build
+          docker compose run --rm terraform terraform version
+          docker compose run --rm terraform aws --version
+          docker compose run --rm terraform gcloud version
+          docker-compose run --rm terraform terraform init
