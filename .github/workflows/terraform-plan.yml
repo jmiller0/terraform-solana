@@ -28,23 +28,11 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_wrapper: false
 
-      - name: Terraform Init
-        id: init
-        run: terraform init
-
-      - name: Terraform Format
-        id: fmt
-        run: terraform fmt -check
-        continue-on-error: true
-
-      - name: Terraform Validate
-        id: validate
-        run: terraform validate -no-color
-
-      - name: Terraform Plan
-        id: plan
-        timeout-minutes: 5
+      - name: Run Terraform Plan
+        uses: OP5dev/tf-via-pr@v13
         env:
           TF_VAR_admin_ip: ${{ secrets.ADMIN_IP }}
           TF_VAR_aws_root_zone: ${{ secrets.AWS_ROOT_ZONE }}
@@ -53,82 +41,13 @@ jobs:
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           TF_VAR_github_username: ${{ github.repository_owner }}
           TF_VAR_github_repo: ${{ github.event.repository.name }}
-        run: |
-          # Capture plan output regardless of success/failure
-          terraform plan -input=false -no-color > plan_output.txt 2>&1 || exit_code=$?
-          
-          # If plan succeeded, create the planfile for the comment action
-          if [ -z "$exit_code" ]; then
-            terraform plan -input=false -no-color -out=tfplan
-            echo "plan_failed=false" >> $GITHUB_OUTPUT
-          else
-            echo "plan_failed=true" >> $GITHUB_OUTPUT
-            exit $exit_code
-          fi
-
-      - name: Show Plan
-        id: show
-        if: success()
-        run: |
-          terraform show -no-color tfplan > tfplan.txt
-
-      - name: Post Successful Plan to PR
-        if: success()
-        uses: borchero/terraform-plan-comment@v2
         with:
-          token: ${{ github.token }}
-          planfile: tfplan
-          skip-empty: true
-
-      - name: Post Failed Plan to PR
-        if: failure() && steps.plan.outputs.plan_failed == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const planOutput = fs.readFileSync('plan_output.txt', 'utf8');
-            const body = `### ❌ Terraform Plan Failed\n\n\`\`\`hcl\n${planOutput}\n\`\`\``;
-            
-            const { data: comments } = await github.rest.issues.listComments({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            });
-            
-            const botComment = comments.find(comment => 
-              comment.user.type === 'Bot' && 
-              comment.body.includes('Terraform Plan')
-            );
-            
-            if (botComment) {
-              await github.rest.issues.updateComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                comment_id: botComment.id,
-                body: body
-              });
-            } else {
-              await github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                body: body
-              });
-            }
-
-      - name: Upload Terraform Plan
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: terraform-plan
-          path: |
-            tfplan.txt
-            plan_output.txt
-          retention-days: 5
-
-      - name: Check Plan Status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
+          command: plan
+          working-directory: .
+          format: true
+          validate: true
+          comment-pr: always
+          tag-actor: on-change
 
       - name: Remove Plan Label
         if: always()
