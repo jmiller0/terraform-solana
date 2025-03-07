@@ -1,0 +1,69 @@
+name: Docker Build and Test
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+    paths:
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker.yml'
+      - 'scripts/docker-entrypoint.sh'
+  pull_request:
+    branches: [ "*" ]
+    paths:
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/docker.yml'
+      - 'scripts/docker-entrypoint.sh'
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          load: true
+          tags: terraform-solana:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Test Docker image
+        run: |
+          # Test if terraform is available and working
+          docker run --rm terraform-solana:test terraform version
+          
+          # Test if AWS CLI is available
+          docker run --rm terraform-solana:test aws --version
+          
+          # Test if gcloud is available
+          docker run --rm terraform-solana:test gcloud version
+          
+          # Test terraform init (using the actual project)
+          docker run --rm \
+            -v ${{ github.workspace }}:/workspace \
+            terraform-solana:test \
+            terraform init
+
+      - name: Build docker-compose
+        run: docker-compose build
+
+      - name: Test docker-compose
+        run: |
+          # Start the container
+          docker-compose up -d
+          
+          # Run tests
+          docker-compose exec -T terraform terraform version
+          docker-compose exec -T terraform aws --version
+          docker-compose exec -T terraform gcloud version
+          
+          # Clean up
+          docker-compose down 
