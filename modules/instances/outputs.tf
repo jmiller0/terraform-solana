@@ -128,8 +128,8 @@ output "route53_records" {
 output "connection_strings" {
   description = "SSH connection strings for all instances"
   value = {
-    salt_master   = "ubuntu@${aws_instance.salt_master.public_dns}"
-    aws_minion    = try("ubuntu@${aws_instance.test_minion[0].public_dns}", null)
-    gcp_minion    = try("ubuntu@${google_compute_instance.test_minion[0].network_interface[0].access_config[0].nat_ip}", null)
+    salt_master = "ubuntu@${aws_instance.salt_master.public_dns}"
+    aws_minion  = try("ubuntu@${aws_instance.test_minion[0].public_dns}", null)
+    gcp_minion  = try("ubuntu@${google_compute_instance.test_minion[0].network_interface[0].access_config[0].nat_ip}", null)
   }
 } 

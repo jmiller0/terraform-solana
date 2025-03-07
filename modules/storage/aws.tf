@@ -56,15 +56,15 @@ resource "aws_s3_bucket_public_access_block" "validator" {
 }
 
 resource "aws_s3_bucket_policy" "validator" {
-  bucket = aws_s3_bucket.validator.id
+  bucket     = aws_s3_bucket.validator.id
   depends_on = [aws_s3_bucket_public_access_block.validator]
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        Sid       = "AllowValidatorInstance"
-        Effect    = "Allow"
+        Sid    = "AllowValidatorInstance"
+        Effect = "Allow"
         Principal = {
           AWS = var.validator_instance_role
         }
@@ -81,7 +81,7 @@ resource "aws_s3_bucket_policy" "validator" {
       {
         Sid       = "AllowVPCAndAdminAccess"
         Effect    = "Allow"
-        Principal = {"AWS": "*"}
+        Principal = { "AWS" : "*" }
         Action = [
           "s3:GetObject",
           "s3:ListBucket"
@@ -92,7 +92,7 @@ resource "aws_s3_bucket_policy" "validator" {
         ]
         Condition = {
           IpAddress = {
-            "aws:SourceIp": [
+            "aws:SourceIp" : [
               var.admin_ip,
               var.aws_vpc_cidr,
               var.gcp_vpc_cidr
@@ -103,21 +103,21 @@ resource "aws_s3_bucket_policy" "validator" {
       {
         Sid       = "AllowCenterDomain"
         Effect    = "Allow"
-        Principal = {"AWS": "*"}
+        Principal = { "AWS" : "*" }
         Action    = ["s3:*"]
-        Resource  = [
+        Resource = [
           "${aws_s3_bucket.validator.arn}",
           "${aws_s3_bucket.validator.arn}/*"
         ]
         Condition = {
           StringLike = {
-            "aws:SourceHost": ["*.${var.aws_root_zone}"]
+            "aws:SourceHost" : ["*.${var.aws_root_zone}"]
           }
         }
       },
       {
-        Sid       = "AllowSaltMasterAccess"
-        Effect    = "Allow"
+        Sid    = "AllowSaltMasterAccess"
+        Effect = "Allow"
         Principal = {
           AWS = var.salt_master_instance_role
         }

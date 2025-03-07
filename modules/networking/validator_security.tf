@@ -18,8 +18,8 @@ resource "aws_security_group" "validator" {
 
 # GCP Validator Firewall Rules
 resource "google_compute_firewall" "validator" {
-  name    = "validator-rules"
-  network = google_compute_network.main.name
+  name          = "validator-rules"
+  network       = google_compute_network.main.name
   source_ranges = ["0.0.0.0/0"]
 
   allow {
@@ -44,13 +44,13 @@ resource "google_compute_firewall" "validator" {
     ports    = ["500", "4500"]
   }
 
-  target_tags   = ["validator"]
+  target_tags = ["validator"]
 }
 
 # GCP SSH Access Rule
 resource "google_compute_firewall" "validator_ssh" {
-  name    = "validator-ssh"
-  network = google_compute_network.main.name
+  name          = "validator-ssh"
+  network       = google_compute_network.main.name
   source_ranges = [var.admin_ip]
 
   allow {
@@ -84,9 +84,9 @@ resource "aws_security_group_rule" "validator_ssh" {
 # Salt minion ports
 resource "aws_security_group_rule" "validator_salt" {
   type                     = "ingress"
-  from_port               = 4505
-  to_port                 = 4506
-  protocol                = "tcp"
+  from_port                = 4505
+  to_port                  = 4506
+  protocol                 = "tcp"
   source_security_group_id = aws_security_group.salt_master.id
-  security_group_id       = aws_security_group.validator.id
+  security_group_id        = aws_security_group.validator.id
 }

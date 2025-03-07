@@ -43,11 +43,20 @@ resource "aws_iam_instance_profile" "salt_master" {
 }
 
 resource "aws_instance" "salt_master" {
-  ami           = local.ubuntu_ami[data.aws_region.current.name]
-  instance_type = "t3a.medium"
-  subnet_id     = var.subnet_id
-  key_name      = aws_key_pair.deployer.key_name
+  ami                  = local.ubuntu_ami[local.is_arm_instance ? "arm64" : "x86_64"]
+  instance_type        = var.instance_type
+  subnet_id            = var.subnet_id
+  key_name             = aws_key_pair.deployer.key_name
   iam_instance_profile = aws_iam_instance_profile.salt_master.name
+
+  instance_market_options {
+    market_type = "spot"
+    spot_options {
+      max_price                      = null
+      spot_instance_type             = "persistent"
+      instance_interruption_behavior = "stop"
+    }
+  }
 
   vpc_security_group_ids = [var.aws_salt_master_sg_id]
 
@@ -144,7 +153,7 @@ data "cloudinit_config" "salt_master" {
   part {
     filename     = "salt-master-init.tpl"
     content_type = "text/x-shellscript"
-    content      = templatefile("${path.module}/templates/salt-master-init.tpl", {
+    content = templatefile("${path.module}/templates/salt-master-init.tpl", {
       aws_root_zone = var.aws_root_zone
     })
   }
@@ -160,19 +169,19 @@ data "cloudinit_config" "salt_master" {
       export VAULT_TOKEN=$(cat /etc/salt/vault_token)
       
       # Only process keypairs that exist
-      %{ for k, v in local.validator_keypairs ~}
-      %{ if v != "" ~}
+      %{for k, v in local.validator_keypairs~}
+      %{if v != ""~}
       echo '${v}' > /tmp/${k}-keypair.json
-      %{ endif ~}
-      %{ endfor ~}
+      %{endif~}
+      %{endfor~}
       
       # Only store keypairs that exist
       vault kv put secret/solana/validator \
-        %{ for k, v in local.validator_keypairs ~}
-        %{ if v != "" ~}
+        %{for k, v in local.validator_keypairs~}
+        %{if v != ""~}
         ${k}=@/tmp/${k}-keypair.json \
-        %{ endif ~}
-        %{ endfor ~}
+        %{endif~}
+        %{endfor~}
     EOT
   }
 }

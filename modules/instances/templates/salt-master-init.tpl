@@ -22,7 +22,8 @@ apt-get install -y salt-master salt-minion python3-pip python3-gnupg awscli jq u
 
 # Install Vault
 curl -fsSL https://apt.releases.hashicorp.com/gpg | apt-key add -
-apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+ARCH=$(dpkg --print-architecture)
+apt-add-repository "deb [arch=$ARCH] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
 apt-get update
 apt-get install -y vault
 
@@ -293,7 +294,9 @@ if ! systemctl is-active --quiet salt-master; then
     exit 1
 fi
 
-sleep 10
+systemctl restart salt-master
+systemctl restart salt-minion
+sleep 30
 salt-call state.apply
 
 echo "Salt master and Vault initialization complete. IMPORTANT: Save /root/vault-init.txt securely!"

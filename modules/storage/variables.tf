@@ -41,7 +41,7 @@ variable "aws_root_zone" {
 variable "common_labels" {
   description = "Common labels to apply to all resources"
   type        = map(string)
-  default     = {
+  default = {
     environment = "dev"
     service     = "solana"
     project     = "validator"
