@@ -14,6 +14,10 @@ resource "aws_iam_role" "validator" {
       }
     ]
   })
+
+  tags = {
+    Name = "validator-role"
+  }
 }
 
 # S3 Access Policy for Validator
@@ -117,4 +121,8 @@ resource "aws_iam_role_policy" "validator_route53" {
 resource "aws_iam_instance_profile" "validator" {
   name = "validator-profile"
   role = aws_iam_role.validator.name
+
+  tags = {
+    Name = "validator-instance-profile"
+  }
 } 

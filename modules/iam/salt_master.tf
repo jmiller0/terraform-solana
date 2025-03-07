@@ -14,6 +14,10 @@ resource "aws_iam_role" "salt_master" {
       }
     ]
   })
+
+  tags = {
+    Name = "salt-master-role"
+  }
 }
 
 # Add EC2 permissions to Salt master role
@@ -40,4 +44,8 @@ resource "aws_iam_role_policy" "salt_master_ec2_policy" {
 resource "aws_iam_instance_profile" "salt_master" {
   name = "salt-master-profile"
   role = aws_iam_role.salt_master.name
+
+  tags = {
+    Name = "salt-master-instance-profile"
+  }
 } 
