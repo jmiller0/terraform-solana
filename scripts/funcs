@@ -1,5 +1,42 @@
 #!/bin/bash
 
+# Enable debug mode if DEBUG is set
+[[ "${DEBUG}" == "true" ]] && set -x
+
+# Helper function to check if infracost is available and enabled
+check_infracost() {
+    if [[ "${INFRACOST_EVAL}" == "true" ]] && command -v infracost >/dev/null 2>&1; then
+        return 0
+    fi
+    return 1
+}
+
+# Helper function to run infracost breakdown with terraform vars
+run_infracost() {
+    local tf_vars=("$@")  # Accept array of vars
+    if check_infracost; then
+        echo "Running Infracost breakdown before applying changes..."
+        [[ "${DEBUG}" == "true" ]] && echo "Debug: Original terraform vars: ${tf_vars[*]}"
+        
+        # Convert terraform vars to infracost format
+        local infracost_vars=()
+        for var in "${tf_vars[@]}"; do
+            if [[ $var =~ -var=([^=]+)=(.*) ]]; then
+                key="${BASH_REMATCH[1]}"
+                value="${BASH_REMATCH[2]}"
+                infracost_vars+=("--terraform-var" "${key}=${value}")
+            fi
+        done
+        
+        [[ "${DEBUG}" == "true" ]] && echo "Debug: Running infracost with converted vars: ${infracost_vars[*]}"
+        if [[ "${DEBUG}" == "true" ]]; then
+            INFRACOST_LOG_LEVEL=debug infracost breakdown --path . "${infracost_vars[@]}"
+        else
+            infracost breakdown --path . "${infracost_vars[@]}"
+        fi
+    fi
+}
+
 # Function to display usage instructions
 usage() {
     echo "Usage: Source this script and run any of the following commands:"
@@ -19,11 +56,17 @@ usage() {
     echo "  recreate_aws_minions [aa]       - Recreate AWS test minions (delete and recreate)"
     echo "  recreate_gcp_aws_minions [aa]   - Recreate both GCP and AWS test minions"
     echo ""
+    echo "Options:"
     echo "  [aa] (optional)                 - Pass 'aa' to enable auto-approve"
+    echo ""
+    echo "Environment Variables:"
+    echo "  INFRACOST_EVAL                  - Set to 'true' to enable cost estimation before apply"
+    echo "  DEBUG                           - Set to 'true' to enable debug output"
     echo ""
     echo "Example usage after sourcing the script:"
     echo "  create_gcp_validator"
     echo "  delete_all aa"
+    echo "  DEBUG=true INFRACOST_EVAL=true create_gcp_aws_validators"
 }
 
 # Function to delete all instances
@@ -33,8 +76,10 @@ delete_all() {
         auto_approve="-auto-approve"
     fi
     echo "Deleting all Terraform-managed resources... (auto-approve: $auto_approve)"
-    echo "terraform apply $auto_approve"
-    time terraform apply $auto_approve
+
+    run_infracost "${tf_vars[@]}"
+    echo "terraform apply ${tf_vars[*]} $auto_approve"
+    time terraform apply ${tf_vars[*]} $auto_approve
 }
 
 # Function to delete the salt master
@@ -55,8 +100,14 @@ create_gcp_validator() {
         auto_approve="-auto-approve"
     fi
     echo "Creating only GCP validators... (auto-approve: $auto_approve)"
-    echo "terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' $auto_approve"
-    time terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' $auto_approve
+    local tf_vars=(
+        "-var=create_validators=true"
+        "-var=create_test_minions=false"
+        "-var=create_gcp_instances=true"
+    )
+    run_infracost "${tf_vars[@]}"
+    echo "terraform apply ${tf_vars[*]} $auto_approve"
+    time terraform apply ${tf_vars[*]} $auto_approve
 }
 
 # Function to create both GCP and AWS validators
@@ -66,8 +117,15 @@ create_gcp_aws_validators() {
         auto_approve="-auto-approve"
     fi
     echo "Creating both GCP and AWS validators... (auto-approve: $auto_approve)"
-    echo "terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve"
-    time terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve
+    local tf_vars=(
+        "-var=create_validators=true"
+        "-var=create_test_minions=false"
+        "-var=create_gcp_instances=true"
+        "-var=create_aws_instances=true"
+    )
+    run_infracost "${tf_vars[@]}"
+    echo "terraform apply ${tf_vars[*]} $auto_approve"
+    time terraform apply ${tf_vars[*]} $auto_approve
 }
 
 # Function to create all instances
@@ -77,8 +135,15 @@ create_all() {
         auto_approve="-auto-approve"
     fi
     echo "Creating all instances... (auto-approve: $auto_approve)"
-    echo "terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve"
-    time terraform apply -var='create_validators=true' -var='create_test_minions=false' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve
+    local tf_vars=(
+        "-var=create_validators=true"
+        "-var=create_test_minions=false"
+        "-var=create_gcp_instances=true"
+        "-var=create_aws_instances=true"
+    )
+    run_infracost "${tf_vars[@]}"
+    echo "terraform apply ${tf_vars[*]} $auto_approve"
+    time terraform apply ${tf_vars[*]} $auto_approve
 }
 
 # Function to create GCP test minions only
@@ -88,8 +153,14 @@ create_gcp_minions() {
         auto_approve="-auto-approve"
     fi
     echo "Creating only GCP test minions... (auto-approve: $auto_approve)"
-    echo "terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_gcp_instances=true' $auto_approve"
-    time terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_gcp_instances=true' $auto_approve
+    local tf_vars=(
+        "-var=create_validators=false"
+        "-var=create_test_minions=true"
+        "-var=create_gcp_instances=true"
+    )
+    run_infracost "${tf_vars[@]}"
+    echo "terraform apply ${tf_vars[*]} $auto_approve"
+    time terraform apply ${tf_vars[*]} $auto_approve
 }
 
 # Function to create AWS test minions only
@@ -99,8 +170,14 @@ create_aws_minions() {
         auto_approve="-auto-approve"
     fi
     echo "Creating only AWS test minions... (auto-approve: $auto_approve)"
-    echo "terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_aws_instances=true' $auto_approve"
-    time terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_aws_instances=true' $auto_approve
+    local tf_vars=(
+        "-var=create_validators=false"
+        "-var=create_test_minions=true"
+        "-var=create_aws_instances=true"
+    )
+    run_infracost "${tf_vars[@]}"
+    echo "terraform apply ${tf_vars[*]} $auto_approve"
+    time terraform apply ${tf_vars[*]} $auto_approve
 }
 
 # Function to create both GCP and AWS test minions
@@ -110,8 +187,15 @@ create_gcp_aws_minions() {
         auto_approve="-auto-approve"
     fi
     echo "Creating both GCP and AWS test minions... (auto-approve: $auto_approve)"
-    echo "terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve"
-    time terraform apply -var='create_validators=false' -var='create_test_minions=true' -var='create_gcp_instances=true' -var='create_aws_instances=true' $auto_approve
+    local tf_vars=(
+        "-var=create_validators=false"
+        "-var=create_test_minions=true"
+        "-var=create_gcp_instances=true"
+        "-var=create_aws_instances=true"
+    )
+    run_infracost "${tf_vars[@]}"
+    echo "terraform apply ${tf_vars[*]} $auto_approve"
+    time terraform apply ${tf_vars[*]} $auto_approve
 }
 
 # Function to recreate GCP test minions

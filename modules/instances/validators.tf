@@ -2,34 +2,34 @@
 resource "aws_instance" "validator" {
   count      = var.create_aws_instances && var.create_validators ? 1 : 0
   depends_on = [aws_instance.salt_master]
-  ami           = local.ubuntu_ami[data.aws_region.current.name]
+  ami        = local.ubuntu_ami[data.aws_region.current.name]
   #instance_type = "c6i.12xlarge"
   instance_type = "c6a.large"
   subnet_id     = var.subnet_id
 
   vpc_security_group_ids = [var.aws_security_group_id]
-  key_name              = aws_key_pair.deployer.key_name
+  key_name               = aws_key_pair.deployer.key_name
 
   iam_instance_profile = aws_iam_instance_profile.validator.name
 
   instance_market_options {
     market_type = "spot"
     spot_options {
-      max_price = "1.00"
-      spot_instance_type = "persistent"
+      max_price                      = "1.00"
+      spot_instance_type             = "persistent"
       instance_interruption_behavior = "stop"
     }
   }
 
   user_data = templatefile("${path.module}/templates/salt-minion-init.tpl", {
-    master    = "salt-master.${var.aws_root_zone}"
-    minion_id = "solana-validator-aws-${count.index}"
+    master        = "salt-master.${var.aws_root_zone}"
+    minion_id     = "solana-validator-aws-${count.index}"
     aws_root_zone = "${var.aws_root_zone}"
   })
 
   root_block_device {
-    volume_size = 100  # GB
-    volume_type = "gp3"
+    volume_size           = 100 # GB
+    volume_type           = "gp3"
     delete_on_termination = true
   }
 
@@ -49,10 +49,10 @@ resource "aws_instance" "validator" {
 
 # GCP Validator Instance
 resource "google_compute_instance" "validator" {
-  count      = var.create_gcp_instances && var.create_validators ? 1 : 0
-  depends_on = [aws_instance.salt_master]
+  count        = var.create_gcp_instances && var.create_validators ? 1 : 0
+  depends_on   = [aws_instance.salt_master]
   name         = "solana-validator-gcp-${count.index}"
-  machine_type = "c3d-highcpu-90"
+  machine_type = "c3d-highcpu-60"
   zone         = var.gcp_zone
 
   boot_disk {
@@ -85,8 +85,8 @@ resource "google_compute_instance" "validator" {
   }
 
   metadata_startup_script = templatefile("${path.module}/templates/salt-minion-init.tpl", {
-    master    = "salt-master.${var.aws_root_zone}"
-    minion_id = "solana-validator-gcp-${count.index}"
+    master        = "salt-master.${var.aws_root_zone}"
+    minion_id     = "solana-validator-gcp-${count.index}"
     aws_root_zone = "${var.aws_root_zone}"
   })
 
@@ -96,9 +96,9 @@ resource "google_compute_instance" "validator" {
   }
 
   scheduling {
-    preemptible = true
-    automatic_restart = false
-    provisioning_model = "SPOT"
+    preemptible                 = true
+    automatic_restart           = false
+    provisioning_model          = "SPOT"
     instance_termination_action = "STOP"
   }
 
@@ -131,7 +131,7 @@ resource "aws_ebs_volume" "validator_data" {
   type              = "gp3"
   iops              = 16000
   throughput        = 1000
-  
+
   tags = {
     Name        = "solana-validator-aws-${count.index}-data"
     Environment = "testnet"
@@ -143,18 +143,18 @@ resource "aws_ebs_volume" "validator_data" {
 
 # Attach the volume
 resource "aws_volume_attachment" "validator_data" {
-  count       = var.create_aws_instances && var.create_validators ? 1 : 0
-  device_name = "/dev/xvdf"
-  volume_id   = aws_ebs_volume.validator_data[count.index].id
-  instance_id = aws_instance.validator[count.index].id
-  force_detach = false
+  count                          = var.create_aws_instances && var.create_validators ? 1 : 0
+  device_name                    = "/dev/xvdf"
+  volume_id                      = aws_ebs_volume.validator_data[count.index].id
+  instance_id                    = aws_instance.validator[count.index].id
+  force_detach                   = false
   stop_instance_before_detaching = false
 }
 
 # Add GCP validator IP to Salt master security group
 resource "aws_security_group_rule" "salt_master_gcp_validator" {
   count = var.create_gcp_instances && var.create_validators ? 1 : 0
-  
+
   type              = "ingress"
   from_port         = 4505
   to_port           = 4506
@@ -171,7 +171,7 @@ resource "aws_security_group_rule" "salt_master_gcp_validator" {
 # Add Vault access rule for GCP validator to Salt master
 resource "aws_security_group_rule" "salt_master_gcp_validator_vault" {
   count = var.create_gcp_instances && var.create_validators ? 1 : 0
-  
+
   type              = "ingress"
   from_port         = 8200
   to_port           = 8200

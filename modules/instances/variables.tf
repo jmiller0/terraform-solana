@@ -95,3 +95,11 @@ variable "private_key_path" {
   type        = string
   default     = "~/.ssh/id_rsa"
 }
+
+variable "instance_type" {
+  description = "EC2 instance type for the salt master"
+  type        = string
+  default     = "t4g.medium"
+}
+
+

@@ -14,7 +14,9 @@ add_vault_repo_gpg:
 
 add_vault_repo:
   cmd.run:
-    - name: apt-add-repository "deb [arch=amd64] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
+    - name: |
+        ARCH=$(dpkg --print-architecture)
+        apt-add-repository "deb [arch=$ARCH] https://apt.releases.hashicorp.com $(lsb_release -cs) main"
     - unless: grep -q "hashicorp" /etc/apt/sources.list /etc/apt/sources.list.d/*
 
 install_vault:

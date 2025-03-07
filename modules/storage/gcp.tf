@@ -10,27 +10,27 @@ resource "google_storage_bucket" "validator" {
 
   lifecycle_rule {
     condition {
-      age = 90  # days
+      age = 90 # days
     }
     action {
-      type = "SetStorageClass"
+      type          = "SetStorageClass"
       storage_class = "NEARLINE"
     }
   }
 
   lifecycle_rule {
     condition {
-      age = 180  # days
+      age = 180 # days
     }
     action {
-      type = "SetStorageClass"
+      type          = "SetStorageClass"
       storage_class = "COLDLINE"
     }
   }
 
   lifecycle_rule {
     condition {
-      age = 365  # days
+      age = 365 # days
     }
     action {
       type = "Delete"
@@ -51,9 +51,9 @@ resource "random_id" "bucket_suffix" {
 resource "google_storage_bucket_iam_binding" "validator" {
   bucket = google_storage_bucket.validator.name
   role   = "roles/storage.objectViewer"
-  
+
   members = [
     "serviceAccount:${var.validator_service_account}",
-    "allUsers"  # Will be restricted by VPC Service Controls
+    "allUsers" # Will be restricted by VPC Service Controls
   ]
 } 
