@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   terraform:
+    container_name: terraform-solana
     build:
       context: .
       dockerfile: Dockerfile
