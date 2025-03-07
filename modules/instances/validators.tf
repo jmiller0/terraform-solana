@@ -2,7 +2,7 @@
 resource "aws_instance" "validator" {
   count      = var.create_aws_instances && var.create_validators ? 1 : 0
   depends_on = [aws_instance.salt_master]
-  ami           = local.ubuntu_ami[local.is_arm_instance ? "arm64" : "x86_64"]
+  ami        = local.ubuntu_ami[local.is_arm_instance ? "arm64" : "x86_64"]
   #instance_type = "c6i.12xlarge"
   instance_type = "c6a.large"
   subnet_id     = var.subnet_id
