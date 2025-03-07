@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  terraform:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace
+      - ~/.aws:/root/.aws:ro
+      - ~/.config/gcloud:/root/.config/gcloud:ro
+    environment:
+      - AWS_PROFILE=${AWS_PROFILE:-default}
+      - TF_LOG=${TF_LOG:-INFO}
+    working_dir: /workspace 
