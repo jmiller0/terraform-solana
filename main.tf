@@ -19,6 +19,7 @@ module "iam" {
   github_repo     = var.github_repo
   aws_region      = var.aws_region  # Using root variable
   hosted_zone_id  = var.aws_zone_id
+  gcp_project_id  = var.gcp_project_id
 }
 
 module "instances" {
@@ -49,6 +50,7 @@ module "instances" {
   # IAM configuration
   validator_instance_profile_name    = module.iam.validator_instance_profile_name
   salt_master_instance_profile_name  = module.iam.salt_master_instance_profile_name
+  validator_service_account_email    = module.iam.validator_service_account_email
 }
 
 module "storage" {

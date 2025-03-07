@@ -17,4 +17,9 @@ variable "aws_region" {
 variable "hosted_zone_id" {
   description = "Route53 hosted zone ID for validator DNS updates"
   type        = string
+}
+
+variable "gcp_project_id" {
+  description = "GCP project ID for service account creation"
+  type        = string
 } 

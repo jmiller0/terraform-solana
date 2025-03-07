@@ -84,7 +84,7 @@ output "gcp_validator_data_disk_id" {
 # Service Account Information
 output "validator_service_account" {
   description = "GCP service account email for validator"
-  value       = google_service_account.validator.email
+  value       = var.validator_service_account_email
 }
 
 # DNS Records

@@ -90,7 +90,7 @@ resource "google_compute_instance" "validator" {
   })
 
   service_account {
-    email  = google_service_account.validator.email
+    email  = var.validator_service_account_email
     scopes = ["storage-rw"]
   }
 

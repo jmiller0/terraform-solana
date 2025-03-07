@@ -113,4 +113,9 @@ variable "salt_master_instance_profile_name" {
   type        = string
 }
 
+variable "validator_service_account_email" {
+  description = "Email of the GCP service account for validator instances"
+  type        = string
+}
+
 

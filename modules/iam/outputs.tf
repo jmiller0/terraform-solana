@@ -21,4 +21,9 @@ output "salt_master_role_arn" {
 output "salt_master_instance_profile_name" {
   description = "Name of the instance profile for salt master instance"
   value       = aws_iam_instance_profile.salt_master.name
+}
+
+output "validator_service_account_email" {
+  description = "Email of the GCP service account for validator instances"
+  value       = google_service_account.validator.email
 } 
