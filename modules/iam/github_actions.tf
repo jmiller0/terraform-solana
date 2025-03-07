@@ -188,9 +188,9 @@ resource "aws_iam_role_policy" "github_actions_test" {
 # Google Cloud Workload Identity Pool
 resource "google_iam_workload_identity_pool" "github_actions" {
   workload_identity_pool_id = "github-actions-pool"
-  display_name             = "GitHub Actions Pool"
-  description             = "Identity pool for GitHub Actions"
-  project                 = var.gcp_project_id
+  display_name              = "GitHub Actions Pool"
+  description               = "Identity pool for GitHub Actions"
+  project                   = var.gcp_project_id
 }
 
 # GitHub Actions provider for the pool
@@ -199,7 +199,7 @@ resource "google_iam_workload_identity_pool_provider" "github_actions" {
   workload_identity_pool_provider_id = "github-actions-provider"
   display_name                       = "GitHub Actions Provider"
   description                        = "OIDC identity pool provider for GitHub Actions"
-  project                           = var.gcp_project_id
+  project                            = var.gcp_project_id
 
   attribute_mapping = {
     "google.subject"       = "assertion.sub"
@@ -234,6 +234,6 @@ resource "google_service_account_iam_binding" "github_actions_workload_identity"
 # Grant necessary permissions to the service account
 resource "google_project_iam_member" "github_actions_permissions" {
   project = var.gcp_project_id
-  role    = "roles/editor"  # Consider using more specific roles in production
+  role    = "roles/editor" # Consider using more specific roles in production
   member  = "serviceAccount:${google_service_account.github_actions.email}"
 } 
