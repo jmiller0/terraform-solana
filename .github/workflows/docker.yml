@@ -20,56 +20,23 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Set up Docker Compose
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - uses: ndeloof/install-compose-action@v0.0.1
+      
+      - name: Build and test Docker image
         run: |
-          sudo apt-get update
-          sudo apt-get install -y docker-compose-plugin
-          docker compose version
-
-      - name: Build Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          load: true
-          tags: terraform-solana:test
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-      - name: Test Docker image
-        run: |
-          # Test if terraform is available and working
+          docker build -t terraform-solana:test .
           docker run --rm terraform-solana:test terraform version
-          
-          # Test if AWS CLI is available
           docker run --rm terraform-solana:test aws --version
-          
-          # Test if gcloud is available
           docker run --rm terraform-solana:test gcloud version
-          
-          # Test terraform init (using the actual project)
-          docker run --rm \
-            -v ${{ github.workspace }}:/workspace \
-            terraform-solana:test \
-            terraform init
-
-      - name: Build docker-compose
-        run: docker compose build
-
-      - name: Test docker-compose
+          docker run --rm -v ${{ github.workspace }}:/workspace terraform-solana:test terraform init
+      
+      - name: Test with docker-compose
         run: |
-          # Start the container
+          docker compose build
           docker compose up -d
-          
-          # Run tests
           docker compose exec -T terraform terraform version
           docker compose exec -T terraform aws --version
           docker compose exec -T terraform gcloud version
-          
-          # Clean up
           docker compose down 
