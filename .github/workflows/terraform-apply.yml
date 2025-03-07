@@ -34,7 +34,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
+        run: terraform apply -auto-approve -input=false
 
       - name: Remove Apply Label
         if: always()
