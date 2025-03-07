@@ -26,6 +26,12 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Set up Docker Compose
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y docker-compose-plugin
+          docker compose version
+
       - name: Build Docker image
         uses: docker/build-push-action@v5
         with:
@@ -53,17 +59,17 @@ jobs:
             terraform init
 
       - name: Build docker-compose
-        run: docker-compose build
+        run: docker compose build
 
       - name: Test docker-compose
         run: |
           # Start the container
-          docker-compose up -d
+          docker compose up -d
           
           # Run tests
-          docker-compose exec -T terraform terraform version
-          docker-compose exec -T terraform aws --version
-          docker-compose exec -T terraform gcloud version
+          docker compose exec -T terraform terraform version
+          docker compose exec -T terraform aws --version
+          docker compose exec -T terraform gcloud version
           
           # Clean up
-          docker-compose down 
+          docker compose down 
