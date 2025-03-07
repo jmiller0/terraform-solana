@@ -41,6 +41,7 @@ basic_minion_config:
         id: {{ grains['host'] }}
         random_id: false
         hash_type: sha256
+        log_level: debug
     - mode: '0644'
     - user: root
     - group: root
