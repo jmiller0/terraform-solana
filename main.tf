@@ -17,7 +17,7 @@ module "iam" {
 
   github_username = var.github_username
   github_repo     = var.github_repo
-  aws_region      = var.aws_region  # Using root variable
+  aws_region      = var.aws_region # Using root variable
   hosted_zone_id  = var.aws_zone_id
   gcp_project_id  = var.gcp_project_id
 }
@@ -48,9 +48,9 @@ module "instances" {
   gcp_project_id        = var.gcp_project_id
 
   # IAM configuration
-  validator_instance_profile_name    = module.iam.validator_instance_profile_name
-  salt_master_instance_profile_name  = module.iam.salt_master_instance_profile_name
-  validator_service_account_email    = module.iam.validator_service_account_email
+  validator_instance_profile_name   = module.iam.validator_instance_profile_name
+  salt_master_instance_profile_name = module.iam.salt_master_instance_profile_name
+  validator_service_account_email   = module.iam.validator_service_account_email
 }
 
 module "storage" {
@@ -61,8 +61,8 @@ module "storage" {
   admin_ip                  = var.admin_ip
   validator_instance_role   = module.iam.validator_role_arn
   validator_service_account = module.instances.validator_service_account
-  gcp_region               = var.gcp_region
+  gcp_region                = var.gcp_region
   salt_master_instance_role = module.iam.salt_master_role_arn
-  aws_root_zone            = var.aws_root_zone
-  common_labels            = local.common_labels
+  aws_root_zone             = var.aws_root_zone
+  common_labels             = local.common_labels
 } 

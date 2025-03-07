@@ -2,7 +2,7 @@
 resource "aws_iam_openid_connect_provider" "github_actions" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1","1c58a3a8518e8759bf075b76b750d4f2df264fcd"] # GitHub Actions' thumbprint
+  thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780aea1", "1c58a3a8518e8759bf075b76b750d4f2df264fcd"] # GitHub Actions' thumbprint
 }
 
 # IAM Role for GitHub Actions
@@ -54,14 +54,14 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "ec2:DescribeTags",
           "ec2:ModifyInstanceAttribute",
           "ec2:DescribeInstanceAttribute",
-          
+
           # Spot Instance Management
           "ec2:RequestSpotInstances",
           "ec2:CancelSpotInstanceRequests",
           "ec2:DescribeSpotInstanceRequests",
           "ec2:CreateSpotDatafeedSubscription",
           "ec2:DeleteSpotDatafeedSubscription",
-          
+
           # VPC and Networking
           "ec2:DescribeVpcs",
           "ec2:CreateVpc",
@@ -80,14 +80,14 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "ec2:AuthorizeSecurityGroupEgress",
           "ec2:RevokeSecurityGroupEgress",
           "ec2:UpdateSecurityGroupRuleDescriptionsEgress",
-          
+
           # Internet Gateway
           "ec2:CreateInternetGateway",
           "ec2:DeleteInternetGateway",
           "ec2:AttachInternetGateway",
           "ec2:DetachInternetGateway",
           "ec2:DescribeInternetGateways",
-          
+
           # Route Tables
           "ec2:CreateRoute",
           "ec2:DeleteRoute",
@@ -97,7 +97,7 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "ec2:DisassociateRouteTable",
           "ec2:ReplaceRouteTableAssociation",
           "ec2:DescribeRouteTables",
-          
+
           # EBS Volumes
           "ec2:CreateVolume",
           "ec2:DeleteVolume",
@@ -106,13 +106,13 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "ec2:ModifyVolume",
           "ec2:DescribeVolumes",
           "ec2:DescribeVolumeStatus",
-          
+
           # Key Pairs
           "ec2:CreateKeyPair",
           "ec2:DeleteKeyPair",
           "ec2:ImportKeyPair",
           "ec2:DescribeKeyPairs",
-          
+
           # IAM Management
           "iam:GetRole",
           "iam:GetRolePolicy",
@@ -126,7 +126,7 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "iam:RemoveRoleFromInstanceProfile",
           "iam:GetInstanceProfile",
           "iam:ListInstanceProfilesForRole",
-          
+
           # S3 Access
           "s3:ListBucket",
           "s3:GetObject",
@@ -141,7 +141,7 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "s3:GetBucketVersioning",
           "s3:PutBucketPublicAccessBlock",
           "s3:GetBucketPublicAccessBlock",
-          
+
           # Route53 DNS Management
           "route53:ListHostedZones",
           "route53:GetHostedZone",
@@ -150,13 +150,13 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "route53:CreateHostedZone",
           "route53:DeleteHostedZone",
           "route53:GetChange",
-          
+
           # KMS for encryption
           "kms:CreateGrant",
           "kms:Decrypt",
           "kms:DescribeKey",
           "kms:GenerateDataKey",
-          
+
           # CloudWatch Logs
           "logs:CreateLogGroup",
           "logs:DeleteLogGroup",
@@ -169,7 +169,7 @@ resource "aws_iam_role_policy" "github_actions_test" {
         Resource = "*"
         Condition = {
           StringEquals = {
-            "aws:RequestedRegion": var.aws_region
+            "aws:RequestedRegion" : var.aws_region
           }
         }
       }
