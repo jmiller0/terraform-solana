@@ -12,8 +12,26 @@ terraform {
   }
 }
 
+locals {
+  common_labels = {
+    environment = "dev"
+    service     = "solana"
+    project     = "validator"
+    managed_by  = "terraform"
+  }
+}
+
 provider "aws" {
   region = "us-east-1"
+  
+  default_tags {
+    tags = {
+      Environment = "Dev"
+      Service     = "Solana"
+      Project     = "Validator"
+      ManagedBy   = "Terraform"
+    }
+  }
 }
 
 provider "google" {

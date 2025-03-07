@@ -274,19 +274,6 @@ $(cat /tmp/cert.gpg | sed 's/^/      /')
 $(cat /tmp/key.gpg | sed 's/^/      /')
 EOF
 
-
-
-
-# # Create token pillar file
-# cat > /srv/salt/pillar/vault/token.sls << EOF
-# vault:
-#   token: {{ salt['file.read']('/etc/salt/vault_token') | default('', true) | replace('\n', '') | replace('\r', '') }}
-# EOF
-
-# # Set proper permissions on pillar files
-# chmod 640 /srv/salt/pillar/vault/token.sls
-# chown root:salt /srv/salt/pillar/vault/token.sls
-
 # Clean up temporary files securely
 shred -u /tmp/cert.txt /tmp/key.txt /tmp/token.txt /tmp/cert.gpg /tmp/key.gpg /tmp/token.gpg /tmp/role_id.txt /tmp/secret_id.txt /tmp/role_id.gpg /tmp/secret_id.gpg
 
@@ -305,5 +292,8 @@ if ! systemctl is-active --quiet salt-master; then
     echo "ERROR: Salt master is not running"
     exit 1
 fi
+
+sleep 10
+salt-call state.apply
 
 echo "Salt master and Vault initialization complete. IMPORTANT: Save /root/vault-init.txt securely!"

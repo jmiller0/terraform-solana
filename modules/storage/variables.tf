@@ -36,4 +36,15 @@ variable "salt_master_instance_role" {
 variable "aws_root_zone" {
   description = "AWS Route53 root zone"
   type        = string
+}
+
+variable "common_labels" {
+  description = "Common labels to apply to all resources"
+  type        = map(string)
+  default     = {
+    environment = "dev"
+    service     = "solana"
+    project     = "validator"
+    managed_by  = "terraform"
+  }
 } 

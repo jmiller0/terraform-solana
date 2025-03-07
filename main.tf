@@ -47,4 +47,5 @@ module "storage" {
   gcp_region                = var.gcp_region
   salt_master_instance_role = module.instances.salt_master_instance_role
   aws_root_zone             = var.aws_root_zone
+  common_labels             = local.common_labels
 } 
