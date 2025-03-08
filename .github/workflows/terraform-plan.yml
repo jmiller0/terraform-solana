@@ -62,6 +62,12 @@ jobs:
           validate: true
           comment-pr: always
           tag-actor: on-change
+          arg-backend-config: >-
+            bucket=terraform-state-solana-validator,
+            key=terraform.tfstate,
+            region=us-east-1,
+            dynamodb_table=terraform-state-lock,
+            encrypt=true
 
       - name: Remove Plan Label
         if: always()

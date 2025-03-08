@@ -2,6 +2,19 @@
 set -e  # Exit on any error
 
 # Check for required tools and credentials
+# TODO: S3 Backend Config
+# TODO: GCP OIDC
+# aws s3api create-bucket --bucket terraform-state-solana-validator --region us-east-1
+# aws s3api put-bucket-versioning --bucket terraform-state-solana-validator --versioning-configuration Status=Enabled
+
+# TODO: DynamoDB Lock
+# aws dynamodb create-table \
+#   --table-name terraform-state-lock \
+#   --attribute-definitions AttributeName=LockID,AttributeType=S \
+#   --key-schema AttributeName=LockID,KeyType=HASH \
+#   --billing-mode PAY_PER_REQUEST
+
+
 initial_setup() {
     echo "Stage 1: Initial Setup..."
 
