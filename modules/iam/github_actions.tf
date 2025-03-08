@@ -172,7 +172,13 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "logs:CreateLogStream",
           "logs:DeleteLogStream",
           "logs:DescribeLogStreams",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+
+          # DynamoDB for state locking
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:DescribeTable"
         ]
         Resource = "*"
         Condition = {
