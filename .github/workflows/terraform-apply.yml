@@ -52,6 +52,7 @@ jobs:
               });
               return false;
             }
+            core.setOutput('success', 'true');
             return true;
 
   apply:
@@ -83,12 +84,11 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.7.0"
+          terraform_version: 1.11.1
+          terraform_wrapper: false
 
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Apply
+      - name: Run Terraform Apply
+        uses: OP5dev/tf-via-pr@v13
         env:
           TF_VAR_admin_ip: ${{ secrets.ADMIN_IP }}
           TF_VAR_aws_root_zone: ${{ secrets.AWS_ROOT_ZONE }}
@@ -97,7 +97,13 @@ jobs:
           TF_VAR_ssh_public_key: ${{ secrets.SSH_PUBLIC_KEY }}
           TF_VAR_github_username: ${{ github.repository_owner }}
           TF_VAR_github_repo: ${{ github.event.repository.name }}
-        run: terraform apply -auto-approve -input=false
+        with:
+          command: apply
+          working-directory: .
+          comment-pr: always
+          tag-actor: on-change
+          arg-backend-config: >-
+            bucket=terraform-state-solana-validator,key=terraform.tfstate,region=us-east-1,dynamodb_table=terraform-state-lock,encrypt=true
 
       - name: Remove Apply Label
         if: always()
