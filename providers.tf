@@ -1,13 +1,21 @@
 terraform {
-  required_version = ">= 1.10.5"
+  required_version = ">= 1.11.1"
+  backend "s3" {
+    bucket         = "terraform-state-solana-validator"
+    key            = "terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "terraform-state-lock"
+    encrypt        = true
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 5.90.0"
     }
     google = {
       source  = "hashicorp/google"
-      version = "~> 5.0"
+      version = "~> 6.24.0"
     }
   }
 }

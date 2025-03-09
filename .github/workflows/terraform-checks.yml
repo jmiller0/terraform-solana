@@ -1,4 +1,4 @@
-name: PR Checks
+name: Terraform Lint
 
 on:
   pull_request:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   terraform-checks:
-    name: Terraform Fmt and Validate     
+    name: Tflint Checks   
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -18,24 +18,12 @@ jobs:
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
-        terraform_version: latest
+        terraform_version: 1.11.1
     
     - name: Terraform Format
       id: fmt
       run: terraform fmt -check
       continue-on-error: true
-    
-    - name: Terraform Init
-      id: init
-      run: terraform init
-      env:
-        TF_INPUT: false
-    
-    - name: Terraform Validate
-      id: validate
-      run: terraform validate
-      env:
-        TF_INPUT: false
 
   terraform-lint-checks:
     name: Terraform Lint

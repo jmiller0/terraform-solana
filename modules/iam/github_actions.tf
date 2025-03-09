@@ -62,6 +62,9 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "ec2:DescribeTags",
           "ec2:ModifyInstanceAttribute",
           "ec2:DescribeInstanceAttribute",
+          "ec2:DescribeVpcAttribute",
+          "ec2:DescribeInstanceTypes",
+          "ec2:DescribeInstanceCreditSpecifications",
 
           # Spot Instance Management
           "ec2:RequestSpotInstances",
@@ -88,6 +91,7 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "ec2:AuthorizeSecurityGroupEgress",
           "ec2:RevokeSecurityGroupEgress",
           "ec2:UpdateSecurityGroupRuleDescriptionsEgress",
+          "ec2:DescribeSecurityGroupRules",
 
           # Internet Gateway
           "ec2:CreateInternetGateway",
@@ -134,6 +138,9 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "iam:RemoveRoleFromInstanceProfile",
           "iam:GetInstanceProfile",
           "iam:ListInstanceProfilesForRole",
+          "iam:GetOpenIDConnectProvider",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
 
           # S3 Access
           "s3:ListBucket",
@@ -149,6 +156,68 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "s3:GetBucketVersioning",
           "s3:PutBucketPublicAccessBlock",
           "s3:GetBucketPublicAccessBlock",
+          "s3:GetBucketAcl",
+          "s3:PutBucketAcl",
+          "s3:GetBucketCors",
+          "s3:PutBucketCors",
+          "s3:GetBucketWebsite",
+          "s3:PutBucketWebsite",
+          "s3:GetAccelerateConfiguration",
+          "s3:PutAccelerateConfiguration",
+          "s3:GetBucketRequestPayment",
+          "s3:PutBucketRequestPayment",
+          "s3:GetBucketLogging",
+          "s3:PutBucketLogging",
+          "s3:GetBucketLifecycle",
+          "s3:PutBucketLifecycle",
+          "s3:GetBucketLifecycleConfiguration",
+          "s3:PutBucketLifecycleConfiguration",
+          "s3:PutBucketTagging",
+          "s3:GetBucketTagging",
+          "s3:GetLifecycleConfiguration",
+          "s3:PutLifecycleConfiguration",
+          "s3:PutBucketNotification",
+          "s3:GetBucketNotification",
+          "s3:PutInventoryConfiguration",
+          "s3:GetInventoryConfiguration",
+          "s3:PutMetricsConfiguration",
+          "s3:GetMetricsConfiguration",
+          "s3:PutAnalyticsConfiguration",
+          "s3:GetAnalyticsConfiguration",
+          "s3:PutReplicationConfiguration",
+          "s3:GetReplicationConfiguration",
+          "s3:ListBucketVersions",
+          "s3:GetBucketLocation",
+          "s3:GetObjectVersion",
+          "s3:PutObjectVersionAcl",
+          "s3:GetObjectVersionAcl",
+          "s3:DeleteObjectVersion",
+          "s3:GetEncryptionConfiguration",
+          "s3:PutEncryptionConfiguration",
+          "s3:GetObjectLockConfiguration",
+          "s3:PutObjectLockConfiguration",
+          "s3:GetBucketOwnershipControls",
+          "s3:PutBucketOwnershipControls",
+          "s3:GetObjectRetention",
+          "s3:PutObjectRetention",
+          "s3:GetObjectLegalHold",
+          "s3:PutObjectLegalHold",
+          "s3:BypassGovernanceRetention",
+          "s3:PutBucketObjectLockConfiguration",
+          "s3:GetIntelligentTieringConfiguration",
+          "s3:PutIntelligentTieringConfiguration",
+          "s3:GetBucketObjectLockConfiguration",
+          "s3:PutBucketObjectLockConfiguration",
+          "s3:GetBucketVersioning",
+          "s3:PutBucketVersioning",
+          "s3:GetBucketRequestPayment",
+          "s3:PutBucketRequestPayment",
+          "s3:GetBucketLogging",
+          "s3:PutBucketLogging",
+          "s3:GetBucketPolicy",
+          "s3:PutBucketPolicy",
+          "s3:DeleteBucketPolicy",
+          "s3:GetBucketPolicyStatus",
 
           # Route53 DNS Management
           "route53:ListHostedZones",
@@ -172,7 +241,13 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "logs:CreateLogStream",
           "logs:DeleteLogStream",
           "logs:DescribeLogStreams",
-          "logs:PutLogEvents"
+          "logs:PutLogEvents",
+
+          # DynamoDB for state locking
+          "dynamodb:GetItem",
+          "dynamodb:PutItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:DescribeTable"
         ]
         Resource = "*"
         Condition = {
@@ -183,4 +258,57 @@ resource "aws_iam_role_policy" "github_actions_test" {
       }
     ]
   })
+}
+
+# Google Cloud Workload Identity Pool
+resource "google_iam_workload_identity_pool" "github_actions" {
+  workload_identity_pool_id = "github-actions-pool"
+  display_name              = "GitHub Actions Pool"
+  description               = "Identity pool for GitHub Actions"
+  project                   = var.gcp_project_id
+}
+
+# GitHub Actions provider for the pool
+resource "google_iam_workload_identity_pool_provider" "github_actions" {
+  workload_identity_pool_id          = google_iam_workload_identity_pool.github_actions.workload_identity_pool_id
+  workload_identity_pool_provider_id = "github-actions-provider"
+  display_name                       = "GitHub Actions Provider"
+  description                        = "OIDC identity pool provider for GitHub Actions"
+  project                            = var.gcp_project_id
+
+  attribute_mapping = {
+    "google.subject"       = "assertion.sub"
+    "attribute.actor"      = "assertion.actor"
+    "attribute.repository" = "assertion.repository"
+  }
+
+  oidc {
+    issuer_uri = "https://token.actions.githubusercontent.com"
+  }
+
+  attribute_condition = "assertion.repository == \"${var.github_username}/${var.github_repo}\""
+}
+
+# Service account for GitHub Actions
+resource "google_service_account" "github_actions" {
+  account_id   = "github-actions-terraform"
+  display_name = "GitHub Actions Terraform"
+  project      = var.gcp_project_id
+}
+
+# Allow GitHub Actions to use the service account
+resource "google_service_account_iam_binding" "github_actions_workload_identity" {
+  service_account_id = google_service_account.github_actions.name
+  role               = "roles/iam.workloadIdentityUser"
+
+  members = [
+    "principalSet://iam.googleapis.com/${google_iam_workload_identity_pool.github_actions.name}/attribute.repository/${var.github_username}/${var.github_repo}"
+  ]
+}
+
+# Grant necessary permissions to the service account
+resource "google_project_iam_member" "github_actions_permissions" {
+  project = var.gcp_project_id
+  role    = "roles/editor" # Consider using more specific roles in production
+  member  = "serviceAccount:${google_service_account.github_actions.email}"
 } 

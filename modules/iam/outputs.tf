@@ -26,4 +26,14 @@ output "salt_master_instance_profile_name" {
 output "validator_service_account_email" {
   description = "Email of the GCP service account for validator instances"
   value       = google_service_account.validator.email
+}
+
+output "workload_identity_provider" {
+  description = "The Workload Identity Provider resource name"
+  value       = "${google_iam_workload_identity_pool.github_actions.name}/providers/${google_iam_workload_identity_pool_provider.github_actions.workload_identity_pool_provider_id}"
+}
+
+output "github_actions_service_account_email" {
+  description = "The email of the GitHub Actions service account"
+  value       = google_service_account.github_actions.email
 } 
