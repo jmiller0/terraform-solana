@@ -166,6 +166,13 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "s3:PutAccelerateConfiguration",
           "s3:GetBucketRequestPayment",
           "s3:GetBucketLogging",
+          "s3:PutBucketLogging",
+          "s3:GetBucketLifecycle",
+          "s3:PutBucketLifecycle",
+          "s3:GetBucketLifecycleConfiguration",
+          "s3:PutBucketLifecycleConfiguration",
+          "s3:PutBucketTagging",
+          "s3:GetBucketTagging",
 
           # Route53 DNS Management
           "route53:ListHostedZones",
