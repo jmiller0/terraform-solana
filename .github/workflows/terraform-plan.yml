@@ -47,7 +47,7 @@ jobs:
             const comment = context.payload.comment.body;
             const match = comment.match(/\/terraform plan(?:\s+scenario=(\w+))?/);
             if (match) {
-              const scenario = match[1] || 'gcp_validator'; // default to gcp_validator if no scenario specified
+              const scenario = match[1] || 'delete_all'; // default to delete_all if no scenario specified
               if (!['delete_all', 'gcp_validator', 'gcp_minions'].includes(scenario)) {
                 throw new Error(`Invalid scenario: ${scenario}. Valid scenarios are: delete_all, gcp_validator, gcp_minions`);
               }
@@ -61,8 +61,8 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            core.setOutput('scenario', 'gcp_validator');
-            core.setOutput('varfile', 'scenarios/gcp_validator.tfvars');
+            core.setOutput('scenario', 'delete_all');
+            core.setOutput('varfile', 'scenarios/delete_all.tfvars');
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
