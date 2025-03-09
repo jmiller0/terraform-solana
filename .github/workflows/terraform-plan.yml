@@ -76,8 +76,9 @@ jobs:
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 issue_number: context.issue.number,
-                name: 'plan'
+                name: 'plan',
+                silent: true
               });
             } catch (error) {
-              console.log('Label was already removed or did not exist');
+              // Silently handle label removal errors
             } 

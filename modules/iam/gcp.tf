@@ -1,5 +1,22 @@
+# Enable required GCP APIs
+resource "google_project_service" "required_apis" {
+  for_each = toset([
+    "iam.googleapis.com",
+    "cloudresourcemanager.googleapis.com",
+    "iamcredentials.googleapis.com"
+  ])
+
+  project = var.gcp_project_id
+  service = each.value
+
+  disable_dependent_services = false
+  disable_on_destroy         = false
+}
+
 # GCP Service Account for Validator
 resource "google_service_account" "validator" {
+  depends_on = [google_project_service.required_apis]
+
   account_id   = "validator-sa"
   display_name = "Validator Service Account"
   project      = var.gcp_project_id
