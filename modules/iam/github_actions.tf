@@ -62,6 +62,9 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "ec2:DescribeTags",
           "ec2:ModifyInstanceAttribute",
           "ec2:DescribeInstanceAttribute",
+          "ec2:DescribeVpcAttribute",
+          "ec2:DescribeInstanceTypes",
+          "ec2:DescribeInstanceCreditSpecifications",
 
           # Spot Instance Management
           "ec2:RequestSpotInstances",
@@ -88,6 +91,7 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "ec2:AuthorizeSecurityGroupEgress",
           "ec2:RevokeSecurityGroupEgress",
           "ec2:UpdateSecurityGroupRuleDescriptionsEgress",
+          "ec2:DescribeSecurityGroupRules",
 
           # Internet Gateway
           "ec2:CreateInternetGateway",
@@ -134,6 +138,9 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "iam:RemoveRoleFromInstanceProfile",
           "iam:GetInstanceProfile",
           "iam:ListInstanceProfilesForRole",
+          "iam:GetOpenIDConnectProvider",
+          "iam:ListRolePolicies",
+          "iam:ListAttachedRolePolicies",
 
           # S3 Access
           "s3:ListBucket",
@@ -149,6 +156,16 @@ resource "aws_iam_role_policy" "github_actions_test" {
           "s3:GetBucketVersioning",
           "s3:PutBucketPublicAccessBlock",
           "s3:GetBucketPublicAccessBlock",
+          "s3:GetBucketAcl",
+          "s3:PutBucketAcl",
+          "s3:GetBucketCors",
+          "s3:PutBucketCors",
+          "s3:GetBucketWebsite",
+          "s3:PutBucketWebsite",
+          "s3:GetAccelerateConfiguration",
+          "s3:PutAccelerateConfiguration",
+          "s3:GetBucketRequestPayment",
+          "s3:GetBucketLogging",
 
           # Route53 DNS Management
           "route53:ListHostedZones",
