@@ -32,6 +32,7 @@ The infrastructure consists of several key components:
 - AppRole authentication for Vault access
 - Secure keypair management
 - IAM roles and policies for cloud provider access
+- OIDC authentication for GitHub Actions
 
 ### Configuration Management
 - Centralized SaltStack configuration
@@ -45,6 +46,21 @@ The infrastructure consists of several key components:
 - Role-based access control
 - Secure credential distribution
 
+### CI/CD with GitHub Actions
+- Automated Terraform plan on pull requests
+- Plan verification before apply
+- Secure cloud credentials handling via OIDC
+- Label-driven workflow (`plan` and `apply` labels)
+- Automated plan output as PR comments
+- State locking during operations
+
+### State Management
+- Remote state stored in AWS S3
+- State locking via DynamoDB
+- Encrypted state storage
+- State file location: `s3://terraform-state-solana-validator/terraform.tfstate`
+- Lock table: `terraform-state-lock`
+
 ### Monitoring and Validation
 - Comprehensive validation scripts
 - Cloud-init status monitoring
@@ -55,42 +71,49 @@ The infrastructure consists of several key components:
 
 ```
 .
+├── .github/
+│   └── workflows/
+│       ├── terraform-plan.yml    # PR plan workflow
+│       └── terraform-apply.yml   # Changes apply workflow
 ├── modules/
-│   ├── instances/           # Instance creation and configuration
-│   ├── networking/         # Network and security group configurations
-│   └── storage/           # Storage and backup configurations
+│   ├── iam/                     # IAM roles and policies
+│   │   └── github_actions.tf    # GitHub Actions OIDC configuration
+│   ├── instances/              # Instance creation and configuration
+│   ├── networking/             # Network and security group configurations
+│   └── storage/               # Storage and backup configurations
 ├── srv/
-│   └── salt/              # SaltStack configuration
-│       ├── common/        # Common Salt states and files
-│       ├── pillar/        # Encrypted pillar data
-│       ├── reactor/       # Salt reactor configurations
-│       ├── salt-master/   # Salt master states
-│       ├── solana/        # Solana validator states
-│       ├── vault/         # Vault configuration
-│       ├── common.sls     # Common system configuration
-│       ├── salt_init.sls  # Salt initialization
-│       ├── top.sls        # Salt top file
-│       ├── vault_init.sls # Vault initialization
-│       └── vault_test.sls # Vault testing
-├── scripts/               # Utility scripts
-│   └── setup.sh          # Setup and initialization script
-├── validator-keys/       # Solana validator keypairs
-├── main.tf              # Main Terraform configuration
-├── variables.tf         # Terraform variables
-├── outputs.tf           # Terraform outputs
-├── providers.tf         # Provider configurations
-└── terraform.tfvars.example  # Example variables file
+│   └── salt/                  # SaltStack configuration
+│       ├── common/            # Common Salt states and files
+│       ├── pillar/            # Encrypted pillar data
+│       ├── reactor/           # Salt reactor configurations
+│       ├── salt-master/       # Salt master states
+│       ├── solana/            # Solana validator states
+│       ├── vault/             # Vault configuration
+│       ├── common.sls         # Common system configuration
+│       ├── salt_init.sls      # Salt initialization
+│       ├── top.sls            # Salt top file
+│       ├── vault_init.sls     # Vault initialization
+│       └── vault_test.sls     # Vault testing
+├── scripts/                   # Utility scripts
+│   └── setup.sh              # Setup and initialization script
+├── validator-keys/           # Solana validator keypairs
+├── main.tf                  # Main Terraform configuration
+├── variables.tf             # Terraform variables
+├── outputs.tf               # Terraform outputs
+├── providers.tf             # Provider configurations
+└── terraform.tfvars.example # Example variables file
 ```
 
 ## Prerequisites
 
-- Terraform >= 1.0
+- Terraform >= 1.11.1
 - AWS CLI configured with appropriate credentials
 - GCP CLI configured with appropriate credentials
 - Access to AWS and GCP accounts
 - Solana validator keypairs
 - GPG for encrypting sensitive data
 - Public IP address (will be automatically detected or can be manually provided)
+- GitHub repository for CI/CD workflows
 
 ## Setup Instructions
 
@@ -117,15 +140,24 @@ The infrastructure consists of several key components:
    - Enable required GCP APIs
    - Initialize Terraform
 
-4. Review the planned changes:
-   ```bash
-   ./scripts/setup.sh plan
-   ```
+4. Configure GitHub Actions:
+   - Add required secrets to your GitHub repository:
+     - `AWS_ACCOUNT_ID`
+     - `ADMIN_IP`
+     - `AWS_ROOT_ZONE`
+     - `AWS_ZONE_ID`
+     - `GCP_PROJECT_ID`
+     - `SSH_PUBLIC_KEY`
+     - `WORKLOAD_IDENTITY_PROVIDER`
+     - `GCP_SERVICE_ACCOUNT_EMAIL`
 
-5. Apply the configuration:
-   ```bash
-   terraform apply
-   ```
+5. Making Changes:
+   - Create a new branch and make your changes
+   - Create a pull request
+   - Add the `plan` label to trigger a Terraform plan
+   - Review the plan output in the PR comments
+   - If satisfied, add the `apply` label to apply changes
+   - Changes will only be applied if the plan was successful
 
 ## Post-Deployment Steps
 
@@ -167,6 +199,10 @@ The infrastructure consists of several key components:
 - Sensitive files are excluded from git tracking
 - GPG encryption for pillar data
 - Secure keypair management
+- OIDC authentication for GitHub Actions
+- Encrypted state storage in S3
+- State locking via DynamoDB
+- Secure cloud credentials management
 
 ## Troubleshooting
 
@@ -184,4 +220,16 @@ The infrastructure consists of several key components:
    - Verify TLS certificates
    - Check Vault status and logs
    - Verify AppRole configuration
+
+4. GitHub Actions issues:
+   - Check workflow run logs
+   - Verify repository secrets
+   - Ensure OIDC provider is configured correctly
+   - Verify IAM roles and permissions
+
+5. State file issues:
+   - Check S3 bucket permissions
+   - Verify DynamoDB table access
+   - Check for state locks
+   - Review Terraform backend configuration
 

@@ -1,9 +1,8 @@
 name: "Terraform Plan"
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize, labeled]
-    branches: [ main ]
+  issue_comment:
+    types: [created]
 
 permissions:
   id-token: write
@@ -17,12 +16,33 @@ permissions:
 jobs:
   plan:
     name: "Terraform Plan"
-    if: contains(github.event.pull_request.labels.*.name, 'plan')
+    if: |
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/terraform plan scenario=')
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout
+      - name: Checkout PR
         uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ github.event.issue.number }}/head
+
+      - name: Extract Scenario
+        id: scenario
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = context.payload.comment.body;
+            const match = comment.match(/\/terraform plan scenario=(\w+)/);
+            if (!match) {
+              throw new Error('Scenario must be specified. Usage: /terraform plan scenario=<scenario_name>');
+            }
+            const scenario = match[1];
+            if (!['delete_all', 'gcp_validator', 'gcp_minions'].includes(scenario)) {
+              throw new Error(`Invalid scenario: ${scenario}. Valid scenarios are: delete_all, gcp_validator, gcp_minions`);
+            }
+            core.setOutput('scenario', scenario);
+            core.setOutput('varfile', `scenarios/${scenario}.tfvars`);
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -65,20 +85,4 @@ jobs:
           tag-actor: on-change
           arg-backend-config: >-
             bucket=terraform-state-solana-validator,key=terraform.tfstate,region=us-east-1,dynamodb_table=terraform-state-lock,encrypt=true
-
-      - name: Remove Plan Label
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            try {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                name: 'plan',
-                silent: true
-              });
-            } catch (error) {
-              // Silently handle label removal errors
-            } 
+          arg-var-file: ${{ steps.scenario.outputs.varfile }} 
