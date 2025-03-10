@@ -15,4 +15,5 @@ services:
       - AWS_PROFILE=${AWS_PROFILE:-default}
       - TF_LOG=${TF_LOG:-INFO}
       - SKIP_INIT=${SKIP_INIT:-}  # Can be set to skip init
+      - CI=${CI:-}  # Pass through CI environment variable
     working_dir: /workspace 
