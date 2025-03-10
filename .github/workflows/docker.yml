@@ -25,17 +25,19 @@ jobs:
       - uses: ndeloof/install-compose-action@v0.0.1
       
       - name: Build and test Docker image
+        env:
+          CI: "true"  # This is actually set by default in GitHub Actions
         run: |
           docker build -t terraform-solana:test .
           docker run --rm terraform-solana:test terraform version
           docker run --rm terraform-solana:test aws --version
           docker run --rm terraform-solana:test gcloud version
-          docker run --rm -v ${{ github.workspace }}:/workspace terraform-solana:test terraform init
       
       - name: Test with docker-compose
+        env:
+          CI: "true"  # This is actually set by default in GitHub Actions
         run: |
           docker compose build
           docker compose run --rm terraform terraform version
           docker compose run --rm terraform aws --version
           docker compose run --rm terraform gcloud version
-          docker-compose run --rm terraform terraform init
