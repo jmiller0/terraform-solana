@@ -1,8 +1,8 @@
 #!/bin/bash
 set -e
 
-# Initialize Terraform if .terraform directory doesn't exist
-if [ ! -d ".terraform" ]; then
+# Skip terraform init if we're in CI or if SKIP_INIT is set
+if [[ -z "${CI}" && -z "${SKIP_INIT}" && ! -d ".terraform" ]]; then
     echo "Initializing Terraform..."
     terraform init
 fi

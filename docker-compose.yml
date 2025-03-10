@@ -14,4 +14,5 @@ services:
     environment:
       - AWS_PROFILE=${AWS_PROFILE:-default}
       - TF_LOG=${TF_LOG:-INFO}
+      - SKIP_INIT=${SKIP_INIT:-}  # Can be set to skip init
     working_dir: /workspace 
