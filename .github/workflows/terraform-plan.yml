@@ -1,9 +1,6 @@
 name: "Terraform Plan"
 
 on:
-  pull_request:
-    types: [opened, reopened, synchronize]
-    branches: [ main ]
   issue_comment:
     types: [created]
 
@@ -19,50 +16,33 @@ permissions:
 jobs:
   plan:
     name: "Terraform Plan"
-    # Run on either PR events or PR comments with the trigger phrase
     if: |
-      github.event_name == 'pull_request' ||
-      (github.event_name == 'issue_comment' &&
-       github.event.issue.pull_request &&
-       contains(github.event.comment.body, '/terraform plan'))
+      github.event.issue.pull_request &&
+      contains(github.event.comment.body, '/terraform plan scenario=')
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout PR
-        if: github.event_name == 'issue_comment'
         uses: actions/checkout@v4
         with:
           ref: refs/pull/${{ github.event.issue.number }}/head
 
-      - name: Checkout
-        if: github.event_name == 'pull_request'
-        uses: actions/checkout@v4
-
       - name: Extract Scenario
         id: scenario
-        if: github.event_name == 'issue_comment'
         uses: actions/github-script@v7
         with:
           script: |
             const comment = context.payload.comment.body;
-            const match = comment.match(/\/terraform plan(?:\s+scenario=(\w+))?/);
-            if (match) {
-              const scenario = match[1] || 'delete_all'; // default to delete_all if no scenario specified
-              if (!['delete_all', 'gcp_validator', 'gcp_minions'].includes(scenario)) {
-                throw new Error(`Invalid scenario: ${scenario}. Valid scenarios are: delete_all, gcp_validator, gcp_minions`);
-              }
-              core.setOutput('scenario', scenario);
-              core.setOutput('varfile', `scenarios/${scenario}.tfvars`);
+            const match = comment.match(/\/terraform plan scenario=(\w+)/);
+            if (!match) {
+              throw new Error('Scenario must be specified. Usage: /terraform plan scenario=<scenario_name>');
             }
-
-      # Set default scenario for PR events
-      - name: Set Default Scenario
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            core.setOutput('scenario', 'delete_all');
-            core.setOutput('varfile', 'scenarios/delete_all.tfvars');
+            const scenario = match[1];
+            if (!['delete_all', 'gcp_validator', 'gcp_minions'].includes(scenario)) {
+              throw new Error(`Invalid scenario: ${scenario}. Valid scenarios are: delete_all, gcp_validator, gcp_minions`);
+            }
+            core.setOutput('scenario', scenario);
+            core.setOutput('varfile', `scenarios/${scenario}.tfvars`);
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -105,21 +85,4 @@ jobs:
           tag-actor: on-change
           arg-backend-config: >-
             bucket=terraform-state-solana-validator,key=terraform.tfstate,region=us-east-1,dynamodb_table=terraform-state-lock,encrypt=true
-          arg-var-file: ${{ steps.scenario.outputs.varfile || '' }}
-
-      - name: Remove Plan Label
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            try {
-              await github.rest.issues.removeLabel({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.issue.number,
-                name: 'plan',
-                silent: true
-              });
-            } catch (error) {
-              // Silently handle label removal errors
-            } 
+          arg-var-file: ${{ steps.scenario.outputs.varfile }} 
