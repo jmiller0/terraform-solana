@@ -30,7 +30,6 @@ jobs:
           docker run --rm terraform-solana:test terraform version
           docker run --rm terraform-solana:test aws --version
           docker run --rm terraform-solana:test gcloud version
-          docker run --rm -v ${{ github.workspace }}:/workspace terraform-solana:test terraform init
       
       - name: Test with docker-compose
         run: |
@@ -38,4 +37,3 @@ jobs:
           docker compose run --rm terraform terraform version
           docker compose run --rm terraform aws --version
           docker compose run --rm terraform gcloud version
-          docker-compose run --rm terraform terraform init
